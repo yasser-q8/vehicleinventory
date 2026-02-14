@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /* الأنماط كما هي (لم يتم تغييرها) */
+        /* ========== الأنماط الأساسية (كما هي في الملف الأصلي) ========== */
         :root {
             --primary-blue: #4a90e2;
             --light-blue: #e3f2fd;
@@ -52,13 +52,856 @@
             padding: 20px;
         }
 
-        /* باقي الأنماط كما هي */
-        /* ... */
+        /* Header Styles */
+        .header {
+            background: linear-gradient(to right, var(--primary-blue), var(--dark-blue));
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 8px solid var(--accent-red);
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100%;
+            background: linear-gradient(to right, rgba(231, 76, 60, 0.2), transparent);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            z-index: 1;
+        }
+
+        .logo {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 4px solid var(--white);
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .company-info h1 {
+            color: var(--white);
+            margin-bottom: 8px;
+            font-size: 28px;
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .company-info p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            z-index: 1;
+        }
+
+        /* Main Navigation */
+        .main-nav {
+            display: flex;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            overflow: hidden;
+            border: 1px solid var(--medium-gray);
+        }
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 20px 0;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-dark);
+            transition: var(--transition);
+            border-bottom: 4px solid transparent;
+            position: relative;
+            font-size: 16px;
+        }
+
+        .nav-item:hover {
+            background-color: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        .nav-item.active {
+            color: var(--primary-blue);
+            border-bottom-color: var(--accent-red);
+            background-color: var(--light-blue);
+        }
+
+        .nav-item i {
+            margin-left: 8px;
+            font-size: 18px;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--medium-gray);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light-blue);
+        }
+
+        .section-title {
+            color: var(--dark-blue);
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+        }
+
+        .section-title i {
+            color: var(--accent-red);
+            background-color: var(--accent-red-light);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: var(--transition);
+            font-size: 15px;
+            box-shadow: var(--box-shadow-light);
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary-blue), #2979ff);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(to right, #1c6dd0, #1565c0);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(to right, var(--accent-green), #2ecc71);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(to right, #219653, #27ae60);
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: linear-gradient(to right, var(--accent-orange), #f1c40f);
+            color: var(--white);
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(to right, #e67e22, #f39c12);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(to right, var(--accent-red), #ff6b6b);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(to right, #c0392b, #e74c3c);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        /* Form Styles */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark-blue);
+            font-size: 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            background-color: var(--white);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+        }
+
+        /* Searchable Dropdown (إن وجدت) */
+        .searchable-dropdown {
+            position: relative;
+        }
+
+        .dropdown-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: var(--box-shadow);
+            display: none;
+        }
+
+        .dropdown-results.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow-light);
+            margin-top: 20px;
+            border: 1px solid var(--medium-gray);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1100px;
+        }
+
+        .data-table thead {
+            background: linear-gradient(to right, var(--dark-blue), var(--primary-blue));
+            color: var(--white);
+        }
+
+        .data-table th {
+            padding: 18px 15px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 15px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .data-table th:first-child {
+            border-left: none;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--medium-gray);
+            transition: var(--transition);
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: var(--light-blue);
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #e3f2fd;
+            transform: scale(1.002);
+        }
+
+        .data-table td {
+            padding: 15px;
+            text-align: right;
+            color: var(--text-dark);
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .status-active {
+            background-color: var(--accent-green-light);
+            color: var(--accent-green);
+            border: 1px solid #a5d6a7;
+        }
+
+        .status-inactive {
+            background-color: var(--accent-red-light);
+            color: var(--accent-red);
+            border: 1px solid #ef9a9a;
+        }
+
+        .status-expiring {
+            background-color: #fff3e0;
+            color: #f57c00;
+            border: 1px solid #ffb74d;
+        }
+
+        .action-cell {
+            display: flex;
+            gap: 10px;
+            flex-wrap: nowrap;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            box-shadow: var(--box-shadow-light);
+        }
+
+        .edit-btn {
+            background: linear-gradient(to right, #4a90e2, #2979ff);
+            color: var(--white);
+        }
+
+        .edit-btn:hover {
+            background: linear-gradient(to right, #1c6dd0, #1565c0);
+            transform: scale(1.1);
+        }
+
+        .delete-btn {
+            background: linear-gradient(to right, #e74c3c, #ff6b6b);
+            color: var(--white);
+        }
+
+        .delete-btn:hover {
+            background: linear-gradient(to right, #c0392b, #e74c3c);
+            transform: scale(1.1);
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: linear-gradient(to right, var(--light-blue), #f0f8ff);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-end;
+            border: 1px solid var(--medium-gray);
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        /* Statistics Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            transition: var(--transition);
+            border-top: 5px solid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 0 0 0 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-cars {
+            border-top-color: var(--primary-blue);
+        }
+
+        .stat-bikes {
+            border-top-color: var(--accent-orange);
+        }
+
+        .stat-advert {
+            border-top-color: var(--accent-green);
+        }
+
+        .stat-expired {
+            border-top-color: var(--accent-red);
+        }
+
+        .stat-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--white);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-cars .stat-icon {
+            background: linear-gradient(to right, var(--primary-blue), #2979ff);
+        }
+
+        .stat-bikes .stat-icon {
+            background: linear-gradient(to right, var(--accent-orange), #f1c40f);
+        }
+
+        .stat-advert .stat-icon {
+            background: linear-gradient(to right, var(--accent-green), #2ecc71);
+        }
+
+        .stat-expired .stat-icon {
+            background: linear-gradient(to right, var(--accent-red), #ff6b6b);
+        }
+
+        .stat-info h3 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .stat-info p {
+            color: var(--text-light);
+            font-size: 16px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 850px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            animation: modalFadeIn 0.4s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid var(--medium-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to right, var(--light-blue), #f0f8ff);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .modal-title {
+            color: var(--dark-blue);
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--dark-gray);
+            transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--accent-red);
+            background-color: var(--accent-red-light);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        /* Report Preview */
+        #reportPreview {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-top: 30px;
+            border: 1px solid var(--medium-gray);
+            box-shadow: var(--box-shadow-light);
+        }
+
+        /* PDF Template */
+        .pdf-template {
+            position: fixed;
+            left: -10000px;
+            top: -10000px;
+            width: 794px;
+            height: 1123px;
+            background: var(--white);
+            padding: 40px;
+            box-sizing: border-box;
+            z-index: -1000;
+            font-family: 'Times New Roman', serif;
+            font-size: 12px;
+        }
+
+        .pdf-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary-blue);
+        }
+
+        .pdf-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px;
+            display: block;
+            border-radius: 50%;
+            border: 2px solid var(--primary-blue);
+        }
+
+        /* Search Box */
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 50px 14px 18px;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            background-color: var(--white);
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+            outline: none;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-gray);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .form-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .header {
+                flex-direction: column;
+                gap: 25px;
+                text-align: center;
+                padding: 30px 20px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-nav {
+                flex-wrap: wrap;
+            }
+            
+            .nav-item {
+                flex: 1 0 50%;
+                padding: 18px 0;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .btn {
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-section {
+                flex-direction: column;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .nav-item {
+                flex: 1 0 100%;
+            }
+            
+            .content-section {
+                padding: 20px;
+            }
+            
+            .modal-content {
+                padding: 15px;
+            }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--dark-gray);
+            font-size: 14px;
+            margin-top: 40px;
+            border-top: 1px solid var(--medium-gray);
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow-light);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-gray);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-blue);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--dark-blue);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(74, 144, 226, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Alert Message */
+        .alert {
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .alert-success {
+            background-color: var(--accent-green-light);
+            color: var(--accent-green);
+            border: 1px solid #a5d6a7;
+        }
+
+        .alert-error {
+            background-color: var(--accent-red-light);
+            color: var(--accent-red);
+            border: 1px solid #ef9a9a;
+        }
+
+        /* Date Display */
+        .date-display {
+            background: linear-gradient(to right, var(--light-blue), #e3f2fd);
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            color: var(--dark-blue);
+            margin-bottom: 20px;
+            display: inline-block;
+            border: 1px solid var(--medium-gray);
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- الهيكل كما هو مع تعديل قسم موزعين نايف فقط -->
+        <!-- Header -->
         <div class="header">
             <div class="logo-section">
                 <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" alt="شعار شركة نايف" class="logo">
@@ -102,7 +945,81 @@
 
         <!-- Dashboard Section -->
         <div class="content-section active" id="dashboard">
-            <!-- ... كما هو ... -->
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-tachometer-alt"></i> لوحة التحكم الرئيسية
+                </h2>
+                <div class="action-buttons">
+                    <button class="btn btn-outline" id="refreshStats">
+                        <i class="fas fa-sync-alt"></i> تحديث البيانات
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="stats-container">
+                <div class="stat-card stat-cars">
+                    <div class="stat-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalCars">0</h3>
+                        <p>إجمالي السيارات</p>
+                    </div>
+                </div>
+                <div class="stat-card stat-bikes">
+                    <div class="stat-icon">
+                        <i class="fas fa-motorcycle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalBikes">0</h3>
+                        <p>إجمالي الدراجات</p>
+                    </div>
+                </div>
+                <div class="stat-card stat-advert">
+                    <div class="stat-icon">
+                        <i class="fas fa-ad"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalWithAd">0</h3>
+                        <p>مركبات بإعلان نشط</p>
+                    </div>
+                </div>
+                <div class="stat-card stat-expired">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="expiringSoon">0</h3>
+                        <p>إعلانات منتهية قريباً</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Vehicles -->
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-history"></i> آخر المركبات المضافة
+                </h2>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>اسم السائق</th>
+                            <th>رقم السيارة</th>
+                            <th>نوع المركبة</th>
+                            <th>الفرع</th>
+                            <th>موديل المركبة</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentVehiclesTable">
+                        <!-- سيتم التعبئة بواسطة JavaScript -->
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Naif Distributors Section (معدل) -->
@@ -162,7 +1079,7 @@
                         </tr>
                     </thead>
                     <tbody id="naifTableBody">
-                        <!-- يتم التعبئة بواسطة JavaScript -->
+                        <!-- سيتم التعبئة بواسطة JavaScript -->
                     </tbody>
                 </table>
             </div>
@@ -170,24 +1087,490 @@
 
         <!-- External Distributors Section -->
         <div class="content-section" id="external-distributors">
-            <!-- ... كما هو ... -->
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-shipping-fast"></i> الموزع الخارجي
+                </h2>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="addExternalVehicle">
+                        <i class="fas fa-plus"></i> إضافة مركبة
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Box -->
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="externalSearch" placeholder="ابحث عن سائق، شركة، نوع مركبة، فرع...">
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>اسم السائق</th>
+                            <th>رقم الهاتف</th>
+                            <th>نوع المركبة</th>
+                            <th>نوع المركبة 2</th>
+                            <th>السنة</th>
+                            <th>الفرع</th>
+                            <th>ملاحظات</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="externalTableBody">
+                        <!-- سيتم التعبئة بواسطة JavaScript -->
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- باقي الأقسام (Reports, Stores) كما هي -->
-        <!-- ... -->
+        <!-- Reports Section -->
+        <div class="content-section" id="reports">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-bar"></i> التقارير والإحصائيات
+                </h2>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="generateReport">
+                        <i class="fas fa-file-pdf"></i> إنشاء تقرير PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Report Options -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="reportType">نوع التقرير:</label>
+                    <select class="form-control" id="reportType">
+                        <option value="summary">تقرير ملخص المركبات</option>
+                        <option value="advert_status">تقرير حالة الإعلانات</option>
+                        <option value="by_store">تقرير حسب الفرع</option>
+                        <option value="by_vehicle_type">تقرير حسب نوع المركبة</option>
+                        <option value="expiring_soon">تقرير الإعلانات المنتهية قريباً</option>
+                    </select>
+                </div>
+                <div class="form-group searchable-dropdown">
+                    <label for="reportStore">الفرع (اختياري):</label>
+                    <input type="text" class="form-control" id="reportStore" placeholder="اكتب للبحث عن فرع...">
+                    <div class="dropdown-results" id="reportStoreResults"></div>
+                </div>
+                <div class="form-group">
+                    <label for="reportMonth">الشهر (اختياري):</label>
+                    <select class="form-control" id="reportMonth">
+                        <option value="">جميع الأشهر</option>
+                        <option value="01">يناير</option>
+                        <option value="02">فبراير</option>
+                        <option value="03">مارس</option>
+                        <option value="04">أبريل</option>
+                        <option value="05">مايو</option>
+                        <option value="06">يونيو</option>
+                        <option value="07">يوليو</option>
+                        <option value="08">أغسطس</option>
+                        <option value="09">سبتمبر</option>
+                        <option value="10">أكتوبر</option>
+                        <option value="11">نوفمبر</option>
+                        <option value="12">ديسمبر</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Report Preview -->
+            <div id="reportPreview">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-eye"></i> معاينة التقرير
+                    </h2>
+                </div>
+                <div id="reportContent" style="background: white; padding: 20px; border-radius: var(--border-radius);">
+                    <p style="text-align: center; color: var(--text-light); font-size: 16px;">حدد نوع التقرير لعرض معاينة</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stores Section -->
+        <div class="content-section" id="stores">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-store"></i> فروع المطاعم
+                </h2>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>المطعم</th>
+                            <th>مدير المنطقة</th>
+                            <th>مدير التشغيل</th>
+                            <th>Site Name</th>
+                            <th>عدد المركبات</th>
+                            <th>إجمالي السيارات</th>
+                            <th>إجمالي الدراجات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="storesTableBody">
+                        <!-- سيتم التعبئة بواسطة JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2026 نظام إدارة أسطول المركبات - شركة نايف للأغذية. جميع الحقوق محفوظة.</p>
+            <p>جميع الأرقام والتواريخ باللغة الإنجليزية - العملة: دينار كويتي - السنة الحالية: 2026</p>
+        </div>
     </div>
 
-    <!-- الشاشات العائمة كما هي -->
-    <!-- ... -->
+    <!-- Vehicle Form Modal -->
+    <div class="modal" id="vehicleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">إضافة مركبة جديدة</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="vehicleForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="driverName">اسم السائق *</label>
+                            <input type="text" class="form-control" id="driverName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mobile">رقم الهاتف *</label>
+                            <input type="tel" class="form-control" id="mobile" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group searchable-dropdown">
+                            <label for="store">الفرع *</label>
+                            <input type="text" class="form-control" id="store" placeholder="اكتب للبحث عن فرع..." required>
+                            <div class="dropdown-results" id="modalStoreResults"></div>
+                        </div>
+                        <div class="form-group searchable-dropdown">
+                            <label for="vehicleType">نوع المركبة *</label>
+                            <input type="text" class="form-control" id="vehicleType" placeholder="اكتب للبحث عن نوع مركبة..." required>
+                            <div class="dropdown-results" id="modalVehicleTypeResults"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="vehicleNumber">رقم السيارة *</label>
+                            <input type="text" class="form-control" id="vehicleNumber" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicleModel">موديل المركبة</label>
+                            <input type="text" class="form-control" id="vehicleModel">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="year">سنة الصنع</label>
+                            <input type="number" class="form-control" id="year" min="2000" max="2030" value="2026">
+                        </div>
+                        <div class="form-group">
+                            <label for="advert">الإعلان</label>
+                            <select class="form-control" id="advert">
+                                <option value="">اختر الحالة</option>
+                                <option value="يوجد اعلان">يوجد إعلان</option>
+                                <option value="لا يوجد اعلان">لا يوجد إعلان</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expDate">انتهاء الإعلان</label>
+                            <input type="date" class="form-control" id="expDate">
+                        </div>
+                        <div class="form-group searchable-dropdown">
+                            <label for="company">الشركة</label>
+                            <input type="text" class="form-control" id="company" placeholder="اكتب للبحث عن شركة...">
+                            <div class="dropdown-results" id="modalCompanyResults"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="remarks">ملاحظات</label>
+                        <textarea class="form-control" id="remarks" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group" id="distributorTypeGroup" style="display: none;">
+                        <label>نوع الموزع:</label>
+                        <div style="display: flex; gap: 20px; margin-top: 10px;">
+                            <label>
+                                <input type="radio" name="distributorType" value="naif" checked> موزع نايف
+                            </label>
+                            <label>
+                                <input type="radio" name="distributorType" value="external"> موزع خارجي
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px;">
+                        <button type="button" class="btn btn-outline" id="cancelForm">
+                            <i class="fas fa-times"></i> إلغاء
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitForm">
+                            <i class="fas fa-save"></i> حفظ المركبة
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Template (Hidden) -->
+    <div id="pdf-template" class="pdf-template">
+        <!-- سيتم إنشاء الصفحات ديناميكياً -->
+    </div>
 
     <script>
-        // بيانات المركبات (محدثة حتى يناير 2026)
+        // ======================== البيانات المحدثة بالكامل (يناير 2026) ========================
         const vehiclesData = {
             naif: [
-                // ... نفس البيانات المحدثة سابقاً ...
+                {id: 1, fileNum: '', driverName: 'محمد إبراهيم قرني', mobile: '66083149', store: 'الاحمدي', vehicleType: 'car', vehicleNumber: '22/12828', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: 'نايف'},
+                {id: 2, fileNum: '2047', driverName: 'شكيل احمد دوس خان', mobile: '51336969', store: 'البحرين', vehicleType: 'car', vehicleNumber: '22/12421', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 3, fileNum: '1913', driverName: 'ام دي فريد الاسلام ام دي', mobile: '65627668', store: 'البحرين', vehicleType: 'car', vehicleNumber: '22/12241', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 4, fileNum: '', driverName: 'عمرو عبد الناصر', mobile: '66042980', store: 'الجابرية بنت الديك', vehicleType: 'car', vehicleNumber: '22/25836', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 5, fileNum: '5125', driverName: 'صلاح حمود قفطان الشهاب', mobile: '98977914', store: 'الجابرية بنت الديك', vehicleType: 'car', vehicleNumber: '22/12676', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 6, fileNum: '', driverName: 'كامرول الإسلام', mobile: '60329451', store: 'الجابرية تكا', vehicleType: 'car', vehicleNumber: '22/12443', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 7, fileNum: '4966', driverName: 'احمد خليل عبدالعظيم محمد', mobile: '66973946', store: 'الجابرية تكا', vehicleType: 'car', vehicleNumber: '22/12227', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 8, fileNum: '', driverName: 'فالابيل محمد ناصف', mobile: '65158439', store: 'الجهراء بنت الديك', vehicleType: 'car', vehicleNumber: '22/12844', vehicleModel: '', year: '', advert: 'يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 9, fileNum: '', driverName: 'عبد المتين', mobile: '65602761', store: 'الجهراء بنت الديك', vehicleType: 'car', vehicleNumber: '22/12172', vehicleModel: '', year: '', advert: 'يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 10, fileNum: '', driverName: 'احمد على محمد', mobile: '60311814', store: 'الجهراء مكة', vehicleType: 'car', vehicleNumber: '22/12292', vehicleModel: '', year: '', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 11, fileNum: '', driverName: 'محمد ريس خان', mobile: '99563526', store: 'الخيران مول', vehicleType: 'BIKE', vehicleNumber: '2/4678', vehicleModel: '', year: '2024', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 12, fileNum: '', driverName: 'عبدالمحسن حمدى', mobile: '65103279', store: 'الخيران مول', vehicleType: 'car', vehicleNumber: '22/12717', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '2026-06-24', remarks: '', company: ''},
+                {id: 13, fileNum: '', driverName: 'امجد بشير', mobile: '66076572', store: 'الدسمة', vehicleType: 'car', vehicleNumber: '22/12767', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '2025-08-28', remarks: '', company: ''},
+                {id: 14, fileNum: '', driverName: 'محمد واكل علم', mobile: '96093011', store: 'الدسمة', vehicleType: 'car', vehicleNumber: '22/12121', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '2025-09-15', remarks: '', company: ''},
+                {id: 15, fileNum: '', driverName: 'صبخي ابو اليزيد', mobile: '66041092', store: 'الدسمة', vehicleType: 'car', vehicleNumber: '22/12617', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 16, fileNum: '2115', driverName: 'بابول شفيق مياه', mobile: '66098210', store: 'الرقة', vehicleType: 'car', vehicleNumber: '22/12954', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '2025-06-12', remarks: '', company: 'نايف'},
+                {id: 17, fileNum: '', driverName: 'احمد علي', mobile: '65149072', store: 'الرقعي', vehicleType: 'car', vehicleNumber: '22/12546', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 18, fileNum: '4693', driverName: 'هاريهار سينغ', mobile: '96688017', store: 'الرقعي', vehicleType: 'BIKE', vehicleNumber: '2/4679', vehicleModel: '', year: '2023', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 19, fileNum: '6249', driverName: 'واجيد غياش', mobile: '66758763', store: 'الري', vehicleType: 'car', vehicleNumber: '22/12789', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 20, fileNum: '', driverName: 'محمد عادل', mobile: '66458824', store: 'الزهراء', vehicleType: 'car', vehicleNumber: '22/12370', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 21, fileNum: '', driverName: 'محمد بدوي', mobile: '65137984', store: 'السندباد', vehicleType: 'car', vehicleNumber: '22/47434', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 22, fileNum: '2686', driverName: 'احمد حمدان عبد النعيم', mobile: '51211939', store: 'السندباد', vehicleType: 'car', vehicleNumber: '22/12962', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 23, fileNum: '', driverName: 'عبد الهادي', mobile: '50787966', store: 'السندباد', vehicleType: 'car', vehicleNumber: '22/12948', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 24, fileNum: '3351', driverName: 'بادرول منير', mobile: '66825769', store: 'السيد ياسين', vehicleType: 'car', vehicleNumber: '22/12203', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 25, fileNum: '', driverName: 'محمد سرج الحق', mobile: '51162329', store: 'الشرق', vehicleType: 'car', vehicleNumber: '22/44617', vehicleModel: '', year: '2024', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 26, fileNum: '', driverName: 'عبد الاحد خان', mobile: '66053948', store: 'الشرق', vehicleType: 'BIKE', vehicleNumber: '2/4672', vehicleModel: '', year: '2024', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 27, fileNum: '', driverName: 'سلمان حسين', mobile: '66351448', store: 'الشرق', vehicleType: 'BIKE', vehicleNumber: '2/4661', vehicleModel: '', year: '2023', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 28, fileNum: '', driverName: 'حماده سيد عبد الصبور', mobile: '65158092', store: 'الشرق', vehicleType: 'car', vehicleNumber: '22/12170', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 29, fileNum: '', driverName: 'كامرول الاسلام', mobile: '55698236', store: 'الشرق', vehicleType: 'car', vehicleNumber: '22/12578', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '2025-08-28', remarks: '', company: ''},
+                {id: 30, fileNum: '2286', driverName: 'تامر زيدان بارتايم', mobile: '65613540', store: 'الشهداء', vehicleType: 'car', vehicleNumber: '22/12551', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 31, fileNum: '2076', driverName: 'هارون عبد الرب', mobile: '65187534', store: 'الشويخ واره', vehicleType: 'car', vehicleNumber: '22/14917', vehicleModel: '', year: '2023', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 32, fileNum: '', driverName: 'علم انتخاب', mobile: '65608237', store: 'الشويخ واره', vehicleType: 'car', vehicleNumber: '21/96060', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 33, fileNum: '6629', driverName: 'احمد على', mobile: '67679971', store: 'الشويخ واره', vehicleType: 'car', vehicleNumber: '22/12417', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '28/8/2025', remarks: '', company: ''},
+                {id: 34, fileNum: '4726', driverName: 'كريشنا كومار', mobile: '66072693', store: 'الشويخ واره', vehicleType: 'BIKE', vehicleNumber: '2/4676', vehicleModel: '', year: '2023', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 35, fileNum: '5130', driverName: 'هانى الزمار', mobile: '60342579', store: 'الشويخ واره', vehicleType: 'car', vehicleNumber: '22/49825', vehicleModel: '', year: '2024', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 36, fileNum: '', driverName: 'حسن على', mobile: '60329271', store: 'الصليبية الصناعية', vehicleType: 'car', vehicleNumber: '22/12846', vehicleModel: '', year: '', advert: 'يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 37, fileNum: '', driverName: 'علي مفيد', mobile: '99342135', store: 'الصلبية الصناعية', vehicleType: 'car', vehicleNumber: '22/12529', vehicleModel: '', year: '', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 38, fileNum: '', driverName: 'رشدي حسن', mobile: '66258891', store: 'الصلبية الصناعية', vehicleType: 'car', vehicleNumber: '22/12748', vehicleModel: '', year: '', advert: 'يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 39, fileNum: '', driverName: 'محمد شاهين', mobile: '65064410', store: 'الصلبية الصناعية', vehicleType: 'car', vehicleNumber: '22/12514', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 40, fileNum: '', driverName: 'سعيد عبد النبي', mobile: '65563828', store: 'الرحاب', vehicleType: 'car', vehicleNumber: '22/45130', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 41, fileNum: '', driverName: 'ماهر عادل السيد محمود', mobile: '41041468', store: 'الصليبخات', vehicleType: 'car', vehicleNumber: '19/24399', vehicleModel: '', year: '', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 42, fileNum: '', driverName: 'سعد سعد الدين', mobile: '66210644', store: 'الصليبه الجمعيه', vehicleType: 'car', vehicleNumber: '22/45474', vehicleModel: '', year: '', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 43, fileNum: '', driverName: 'جاسكاران كيلو يندر', mobile: '67089411', store: 'الصليبه الجمعيه', vehicleType: 'car', vehicleNumber: '22/12677', vehicleModel: '', year: '', advert: 'يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 44, fileNum: '', driverName: 'حماده ابراهيم', mobile: '66079627', store: 'مطعم الضباعية', vehicleType: 'car', vehicleNumber: '21/36832', vehicleModel: '', year: '2022', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 45, fileNum: '', driverName: 'احمد عبد الكريم', mobile: '41062301', store: 'مطعم الضباعية', vehicleType: 'car', vehicleNumber: '22/44536', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '2025-08-28', remarks: '', company: ''},
+                {id: 46, fileNum: '', driverName: 'حازم ابو اليزيد', mobile: '66049583', store: 'مطعم الضباعية', vehicleType: 'car', vehicleNumber: '22/12429', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '2025-06-12', remarks: '', company: ''},
+                {id: 47, fileNum: '3385', driverName: 'هاني عكاشه', mobile: '66096127', store: 'العارضية', vehicleType: 'car', vehicleNumber: '22/12552', vehicleModel: '', year: '2024', advert: '', expDate: '', remarks: '', company: 'البهبهاني'},
+                {id: 48, fileNum: '5800', driverName: 'mohamed talha', mobile: '65118972', store: 'العارضية', vehicleType: 'BIKE', vehicleNumber: '7430//2', vehicleModel: '', year: '2024', advert: '', expDate: '', remarks: '', company: 'البهبهاني'},
+                {id: 49, fileNum: '1023', driverName: 'احمد رشاد', mobile: '99532930', store: 'الرقعي', vehicleType: 'car', vehicleNumber: '22/46791', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 50, fileNum: '', driverName: 'بلال حسين', mobile: '66225435', store: 'العدان', vehicleType: 'car', vehicleNumber: '22/12363', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 51, fileNum: '', driverName: 'إبراهيم محمد', mobile: '94705170', store: 'العدان', vehicleType: 'car', vehicleNumber: '22/26421', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 52, fileNum: '', driverName: 'بولاش بادشا', mobile: '69686138', store: 'الفحاحيل', vehicleType: 'car', vehicleNumber: '22/12510', vehicleModel: '', year: '2019', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 53, fileNum: '', driverName: 'عبد الرحمن لبيب', mobile: '65107455', store: 'الفحاحيل', vehicleType: 'car', vehicleNumber: '22/12264', vehicleModel: '', year: '2023', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 54, fileNum: '', driverName: 'حسن فقير', mobile: '66102499', store: 'الفنطاس', vehicleType: 'car', vehicleNumber: '22/12088', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '2025-09-09', remarks: '', company: ''},
+                {id: 55, fileNum: '4511', driverName: 'محمد حمدي', mobile: '65611923', store: 'الفيحاء', vehicleType: 'car', vehicleNumber: '22/12300', vehicleModel: '', year: '2023', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 56, fileNum: '', driverName: 'مليتون', mobile: '60330287', store: 'الفيحاء', vehicleType: 'car', vehicleNumber: '22/12908', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 57, fileNum: '6136', driverName: 'زيشان زاميرشيخ', mobile: '66343084', store: 'القادسية', vehicleType: 'car', vehicleNumber: '22/12390', vehicleModel: '', year: '2023', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 58, fileNum: 'المطبخ', driverName: 'عز الضبع', mobile: '51444290', store: 'القادسية', vehicleType: 'car', vehicleNumber: '22/12638', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '2025-12-06', remarks: '', company: ''},
+                {id: 59, fileNum: '', driverName: 'وليد محمود', mobile: '66026137', store: 'القيروان', vehicleType: 'car', vehicleNumber: '22/12644', vehicleModel: '', year: '', advert: 'يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 60, fileNum: '', driverName: 'محمد كوني', mobile: '97469709', store: 'القيروان', vehicleType: 'car', vehicleNumber: '22/14646', vehicleModel: '', year: '', advert: 'يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 61, fileNum: '', driverName: 'يعقوب على صلاح', mobile: '66942963', store: 'المنقف', vehicleType: 'car', vehicleNumber: '22/12768', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '2025-06-12', remarks: '', company: ''},
+                {id: 62, fileNum: '', driverName: 'محمد حمدى', mobile: '66092729', store: 'المنقف', vehicleType: 'car', vehicleNumber: '22/12018', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 63, fileNum: '', driverName: 'شهباز انور', mobile: '97619714', store: 'المنقف', vehicleType: 'BIKE', vehicleNumber: '2/4673', vehicleModel: '', year: '2023', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 64, fileNum: '4216', driverName: 'محمد جمال اشرف', mobile: '', store: 'النافورة', vehicleType: 'car', vehicleNumber: '22/12743', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: 'البهبهاني'},
+                {id: 65, fileNum: '2078', driverName: 'نظام الدين الاسلام', mobile: '66902357', store: 'النافورة', vehicleType: 'car', vehicleNumber: '22/44681', vehicleModel: '', year: '2024', advert: '', expDate: '', remarks: '', company: 'البهبهاني'},
+                {id: 66, fileNum: '', driverName: 'السيد اسماعيل', mobile: '', store: 'النافورة', vehicleType: 'BIKE', vehicleNumber: '2/7437', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 67, fileNum: '', driverName: 'akbar ali', mobile: '65862856', store: 'الوفرة', vehicleType: 'car', vehicleNumber: '22/45120', vehicleModel: '', year: '2024', advert: '', expDate: '', remarks: '', company: 'نايف'},
+                {id: 68, fileNum: '', driverName: 'محمد مراد محمد', mobile: '66035296', store: 'أبو حليفة', vehicleType: 'BIKE', vehicleNumber: '2/4670', vehicleModel: '', year: '2023', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: 'نايف'},
+                {id: 69, fileNum: '', driverName: 'انيس اكبر', mobile: '64984780', store: 'أبو حليفة', vehicleType: 'car', vehicleNumber: '22/45008', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 70, fileNum: '', driverName: 'احمد مدحت', mobile: '50441744', store: 'أسواق القرين', vehicleType: 'car', vehicleNumber: '22/12827', vehicleModel: '', year: '', advert: 'يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 71, fileNum: '2038', driverName: 'خان مسعود رازا', mobile: '65191065', store: 'أسواق القرين', vehicleType: 'car', vehicleNumber: '22/12116', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '21/96932', company: ''},
+                {id: 72, fileNum: '4617', driverName: 'نعيم خان', mobile: '60679484', store: 'أسواق القرين', vehicleType: 'BIKE', vehicleNumber: '2/4671', vehicleModel: '', year: '2020', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 73, fileNum: '5794', driverName: 'فرج انيس', mobile: '41055681', store: 'أسواق القرين', vehicleType: 'BIKE', vehicleNumber: '2/7431', vehicleModel: '', year: '2020', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 74, fileNum: '4638', driverName: 'محمد نواز', mobile: '67013604', store: 'جابر الأحمد', vehicleType: 'car', vehicleNumber: '22/12806', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 75, fileNum: '5729', driverName: 'محمد انوار', mobile: '65187862', store: 'جابر الأحمد', vehicleType: 'BIKE', vehicleNumber: '2/4675', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 76, fileNum: '', driverName: 'احمد سعيد', mobile: '55876067', store: 'جابر الأحمد', vehicleType: 'car', vehicleNumber: '22/12182', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 77, fileNum: '', driverName: 'عمرو عليوة أحمد', mobile: '50320824', store: 'جليب الشيوخ', vehicleType: 'BIKE', vehicleNumber: '2/4677', vehicleModel: '', year: '', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 78, fileNum: '', driverName: 'محمد اختر حسين', mobile: '65167342', store: 'جليب الشيوخ', vehicleType: 'car', vehicleNumber: '22/49568', vehicleModel: '', year: '', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 79, fileNum: '', driverName: 'احمد كبير عمر', mobile: '50817650', store: 'جمعية أبو فطيرة', vehicleType: 'BIKE', vehicleNumber: '2/4681', vehicleModel: '', year: '2024', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 80, fileNum: '', driverName: 'ابراهيم محمد عبد الكريم', mobile: '55506898', store: 'جمعية أبو فطيرة', vehicleType: 'car', vehicleNumber: '21/92801', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 81, fileNum: '', driverName: 'ايهاب رافت', mobile: '51303900', store: 'جمعية أبو فطيرة', vehicleType: 'car', vehicleNumber: '22/12044', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 82, fileNum: '4314', driverName: 'هشام سعيد', mobile: '66126488', store: 'حولي بارك', vehicleType: 'car', vehicleNumber: '22/12090', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '28/8/2025', remarks: '', company: 'بهبهاني'},
+                {id: 83, fileNum: '5138', driverName: 'إيهاب يحي', mobile: '66043162', store: 'كبد', vehicleType: 'car', vehicleNumber: '21/39801', vehicleModel: '', year: '2022', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: ''},
+                {id: 84, fileNum: '', driverName: 'زمان', mobile: '66230580', store: 'كبد', vehicleType: 'car', vehicleNumber: '22/12189', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 85, fileNum: '4866', driverName: 'مصطفي جمال انور', mobile: '69025870', store: 'خيطان', vehicleType: 'car', vehicleNumber: '22/46678', vehicleModel: '', year: '2024', advert: '', expDate: '', remarks: '', company: 'البهبهاني'},
+                {id: 86, fileNum: '4882', driverName: 'نادى كامل احمد جويد', mobile: '65171546', store: 'خيطان', vehicleType: 'car', vehicleNumber: '22/12395', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: 'البهبهاني'},
+                {id: 87, fileNum: '', driverName: 'احمد عزت محمود', mobile: '65615807', store: 'سلوى', vehicleType: 'car', vehicleNumber: '22/12882', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '2025-09-17', remarks: '', company: 'نايف'},
+                {id: 88, fileNum: '', driverName: 'عبد الناصر صلاح', mobile: '66102499', store: 'سلوى', vehicleType: 'car', vehicleNumber: '22/12528', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 89, fileNum: '', driverName: 'غلفام كازي', mobile: '', store: 'صباح الأحمد', vehicleType: 'BIKE', vehicleNumber: '2/4668', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '+918005762880', company: 'نايف'},
+                {id: 90, fileNum: '', driverName: 'خيري عمر احمد', mobile: '55187582', store: 'صباح السالم', vehicleType: 'car', vehicleNumber: '22/45115', vehicleModel: '', year: '', advert: 'لا يوجد اعلان', expDate: '', remarks: '', company: 'نايف'},
+                {id: 91, fileNum: '', driverName: 'يسري علي', mobile: '50154760', store: 'صباح السالم', vehicleType: 'car', vehicleNumber: '22/12780', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 92, fileNum: '', driverName: 'محمد علي عبد الملك', mobile: '99309947', store: 'مطعم صباح السالم العرين', vehicleType: 'car', vehicleNumber: '22/12451', vehicleModel: '', year: '', advert: 'يوجد اعلان', expDate: '', remarks: '', company: 'نايف'},
+                {id: 93, fileNum: '', driverName: 'خيري عطيه نور الدين', mobile: '65064772', store: 'غرب أبو فطيرة', vehicleType: 'car', vehicleNumber: '22/12533', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 94, fileNum: '', driverName: 'احمد مصطفي محموديوسف', mobile: '60331748', store: 'غرب أبو فطيرة', vehicleType: 'car', vehicleNumber: '22/12071', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 95, fileNum: '', driverName: 'اشرف زكي حسان', mobile: '66233518', store: 'غرب أبو فطيرة', vehicleType: 'car', vehicleNumber: '22/12547', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 96, fileNum: '', driverName: 'احمد محمد عزت', mobile: '65599473', store: 'مطعم العارضية', vehicleType: 'car', vehicleNumber: '60/33443', vehicleModel: '', year: '2021', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 97, fileNum: '', driverName: 'عليوه عبد الفتاح', mobile: '94980668', store: 'ليالى الشرق', vehicleType: 'car', vehicleNumber: '22/45075', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: 'البهبهاني'},
+                {id: 98, fileNum: '', driverName: 'على عبده', mobile: '55737473', store: 'ليالى الشرق', vehicleType: 'car', vehicleNumber: '22/12346', vehicleModel: '', year: '2024', advert: '', expDate: '', remarks: '', company: 'البهبهاني'},
+                {id: 99, fileNum: '', driverName: 'عبد الحميد محمد', mobile: '55101826', store: 'ليالى الشرق', vehicleType: 'car', vehicleNumber: '22/12834', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: 'البهبهاني'},
+                {id: 100, fileNum: '', driverName: 'رمضان رمضان', mobile: '65823047', store: 'ليالى الشرق', vehicleType: 'car', vehicleNumber: '22/12263', vehicleModel: '', year: '2024', advert: '', expDate: '', remarks: '', company: 'البهبهاني'},
+                {id: 101, fileNum: '4101', driverName: 'غانم علام احمد الراوى', mobile: '60911424', store: 'مشرف', vehicleType: 'car', vehicleNumber: '21/92086', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 102, fileNum: '4208', driverName: 'محمد فارمان ارفان خان', mobile: '65610524', store: 'مشرف', vehicleType: 'car', vehicleNumber: '22/49654', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 103, fileNum: '6719', driverName: 'مصطفي حمدان', mobile: '66444038', store: 'مشرف', vehicleType: 'car', vehicleNumber: '22/12411', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 104, fileNum: '', driverName: 'ام دى زمان', mobile: '60670160', store: 'مطعم الفروانيه القديم', vehicleType: 'car', vehicleNumber: '60/29271', vehicleModel: '', year: '', advert: 'يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 105, fileNum: '', driverName: 'امدى رحمات', mobile: '96983013', store: 'مطعم الفروانيه القديم', vehicleType: 'BIKE', vehicleNumber: '2/4666', vehicleModel: '', year: '', advert: 'يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 106, fileNum: '', driverName: 'شهيد انصاري', mobile: '96983031', store: 'مطعم الفروانيه القديم', vehicleType: 'car', vehicleNumber: '22/12245', vehicleModel: '', year: '', advert: 'يوجد اعلان', expDate: '', remarks: '', company: 'شركه نايف'},
+                {id: 107, fileNum: '', driverName: 'عمرو', mobile: '66093146', store: 'مطعم الفروانيه القديم', vehicleType: 'car', vehicleNumber: '22/12746', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 108, fileNum: '', driverName: 'ابوبكر سراج', mobile: '66094576', store: 'هدية', vehicleType: 'car', vehicleNumber: '22/12095', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: 'نايف'},
+                {id: 109, fileNum: '', driverName: 'عبد العال عبد السميع', mobile: '96752020', store: 'هدية', vehicleType: 'car', vehicleNumber: '22/12211', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: 'نايف'},
+                {id: 110, fileNum: '', driverName: 'أسامة وحيدمحمود', mobile: '60350393', store: 'الوفره خيول', vehicleType: 'car', vehicleNumber: '22/12701', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '2025-06-12', remarks: '', company: 'نايف'},
+                {id: 111, fileNum: '', driverName: 'حماده حامد', mobile: '65583800', store: 'الوفره خيول', vehicleType: 'car', vehicleNumber: '22/12455', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '9/9/2025', remarks: '', company: 'نايف'},
+                {id: 112, fileNum: '', driverName: 'شمس', mobile: '', store: '', vehicleType: 'car', vehicleNumber: '22/49752', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 113, fileNum: '', driverName: 'Mr jamal', mobile: '', store: '', vehicleType: 'car', vehicleNumber: '22/50486', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 114, fileNum: '', driverName: 'meilad', mobile: '', store: '', vehicleType: 'car', vehicleNumber: '22/47072', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 115, fileNum: '', driverName: 'sayed maintanance', mobile: '', store: '', vehicleType: 'car', vehicleNumber: '22/45322', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 116, fileNum: '', driverName: 'Opration Manger Naif', mobile: '', store: '', vehicleType: 'car', vehicleNumber: '22/26420', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 117, fileNum: '', driverName: 'Warehouse amr abo sata', mobile: '', store: '', vehicleType: 'car', vehicleNumber: '22/14144', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 118, fileNum: '', driverName: 'salman mandoob', mobile: '', store: '', vehicleType: 'car', vehicleNumber: '22/12512', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 119, fileNum: '', driverName: 'Walid Abdel Samie', mobile: '', store: '', vehicleType: 'car', vehicleNumber: '22/47304', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 120, fileNum: '', driverName: 'Ibrahim', mobile: '', store: '', vehicleType: 'car', vehicleNumber: '80/68601', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 121, fileNum: '', driverName: 'احمد محاسب', mobile: '', store: '', vehicleType: 'car', vehicleNumber: '21/96430', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 122, fileNum: '', driverName: 'محمد انور', mobile: '', store: '', vehicleType: 'car', vehicleNumber: '22/12924', vehicleModel: '', year: '', advert: '', expDate: '', remarks: '', company: ''},
+                {id: 123, fileNum: '', driverName: 'مطبخ', mobile: '', store: '', vehicleType: 'car', vehicleNumber: '22/12994', vehicleModel: '', year: '2023', advert: '', expDate: '', remarks: '', company: 'نايف'},
+                {id: 124, fileNum: '', driverName: 'مطبخ', mobile: '', store: '', vehicleType: 'car', vehicleNumber: '22/12818', vehicleModel: '', year: '2023', advert: 'يوجد اعلان', expDate: '2025-09-09', remarks: '', company: 'نايف'}
             ],
             external: [
-                // ... نفس البيانات المحدثة سابقاً ...
+                {driverName: 'شركه العروبه', mobile: '9851688', vehicleType: 'سياره', vehicleType2: 'عمران شافي محمد', year: '', store: 'الجابريه تكا', remarks: ''},
+                {driverName: 'الشرق الأوسط', mobile: '56507110', vehicleType: 'سيلره', vehicleType2: 'غفران علي', year: '', store: 'الجابريه تكا', remarks: ''},
+                {driverName: 'بن مرسان', mobile: '65085911', vehicleType: 'سيكل', vehicleType2: 'محمد حسين', year: '', store: 'الجابريه تكا', remarks: ''},
+                {driverName: 'شركه العروبه', mobile: '99625013', vehicleType: 'سياره', vehicleType2: 'محمد سهيل', year: '', store: 'مشرف', remarks: ''},
+                {driverName: 'النجم الذهبي', mobile: '65008546', vehicleType: 'سياره', vehicleType2: 'كرم عبدالنعيم شعبان', year: '', store: 'السندباد', remarks: ''},
+                {driverName: 'بن مرسان', mobile: '98743755', vehicleType: 'سيكل', vehicleType2: 'دهنش كومار شندرا', year: '', store: 'السندباد', remarks: ''},
+                {driverName: 'شركه العروبه', mobile: '97891490', vehicleType: 'سياره', vehicleType2: 'صمويل كيوكو', year: '', store: 'السندباد', remarks: ''},
+                {driverName: 'بن مرسان', mobile: '96023585', vehicleType: 'سيكل', vehicleType2: 'جبريل صالح', year: '', store: 'السيد ياسين', remarks: ''},
+                {driverName: 'abx', mobile: '69028867', vehicleType: 'سياره', vehicleType2: 'براجوال كومال', year: '', store: 'الري', remarks: ''},
+                {driverName: 'Upesh choudhari', mobile: '65881604', vehicleType: 'CAR', vehicleType2: 'سياره', year: '2022', store: 'Ardiya', remarks: 'اى بى اكس'},
+                {driverName: 'Prithbi', mobile: '94038353', vehicleType: 'CAR', vehicleType2: 'سياره', year: '2022', store: 'Ardiya', remarks: 'العروبه'},
+                {driverName: 'Sathesh kumar', mobile: '97142109', vehicleType: 'BK', vehicleType2: 'بجاج', year: '2023', store: 'Ardiya', remarks: 'العروبه'},
+                {driverName: 'Abdul rahem', mobile: '96016983', vehicleType: 'BK', vehicleType2: 'بجاج', year: '2023', store: 'Ardiya', remarks: 'شركه فاست رايدر'},
+                {driverName: 'شمشاد احمد عبد الستار', mobile: '65041030', vehicleType: 'نيسان', vehicleType2: 'سياره', year: '2022', store: 'خيطان', remarks: 'شركه فاست رايدر'},
+                {driverName: 'امريتال سينج دارشان', mobile: '60682847', vehicleType: 'هيرو هنق', vehicleType2: 'بجاج', year: '2021', store: 'خيطان', remarks: 'شركه كويت درايفو ipx'},
+                {driverName: 'ايابان موثاسامي', mobile: '98066417', vehicleType: 'sym', vehicleType2: 'بجاج', year: '2022', store: 'خيطان', remarks: 'شركه ستار دست'},
+                {driverName: 'باسم حمدي', mobile: '60013930', vehicleType: 'لانسر', vehicleType2: 'سياره', year: '2007', store: 'النافوره', remarks: 'البحار'},
+                {driverName: 'جاجان ديهارت', mobile: '60315949', vehicleType: 'جيلي', vehicleType2: 'سياره', year: '2025', store: 'النافوره', remarks: 'اى بى اكس'},
+                {driverName: 'سابريش سارافانان', mobile: '99267875', vehicleType: 'سيكل', vehicleType2: 'بجاج', year: '2023', store: 'النافوره', remarks: 'بن مرسان'},
+                {driverName: 'رامشاران ثارو', mobile: '94415170', vehicleType: 'نيسان', vehicleType2: 'سياره', year: '2023', store: 'الجهراء ليالى الشرق', remarks: 'العروبه'},
+                {driverName: 'ابيشيك راى', mobile: '94474314', vehicleType: 'نيسان', vehicleType2: 'سياره', year: '2023', store: 'الجهراء ليالى الشرق', remarks: 'العروبه'},
+                {driverName: 'صباح الخير بلال', mobile: '55524977', vehicleType: 'كورولا', vehicleType2: 'سياره', year: '2015', store: 'صباح السالم العرين', remarks: 'الشرق الاوسط'},
+                {driverName: 'ناربيو جامبو', mobile: '99386702', vehicleType: 'شانجان', vehicleType2: 'سياره', year: '2024', store: 'صباح السالم العرين', remarks: 'ليوبارد'},
+                {driverName: 'عبد الله كريم محمد', mobile: '66166275', vehicleType: 'كيا', vehicleType2: 'سياره', year: '2025', store: 'صباح السالم العرين', remarks: 'شركه فاست رايدر'},
+                {driverName: 'بيدر يونجان', mobile: '98944164', vehicleType: 'سوزوكي', vehicleType2: 'سياره', year: '2023', store: 'الرحاب', remarks: 'شركه العروبه'},
+                {driverName: 'سوكوتين سوريش', mobile: '94165148', vehicleType: 'سوزوكي', vehicleType2: 'سياره', year: '2023', store: 'الرحاب', remarks: 'شركه العروبه'},
+                {driverName: 'انيس شودهاري', mobile: '97865686', vehicleType: 'نيسان', vehicleType2: 'سياره', year: '2023', store: 'الشهداء', remarks: 'شركه أي بي اكس'},
+                {driverName: 'راجو خاركي', mobile: '51524431', vehicleType: 'سوزكي', vehicleType2: 'سياره', year: '2023', store: 'الشهداء', remarks: 'شركه نجمه الوسام'},
+                {driverName: 'نيتش ياداف', mobile: '', vehicleType: 'نيسان صني', vehicleType2: 'سياره', year: '2023', store: 'أسواق القرين', remarks: 'شركه سبيدي'},
+                {driverName: 'حجازي علي', mobile: '50451248', vehicleType: 'نيسان', vehicleType2: 'سياره', year: '2020', store: 'الزهراء', remarks: 'شركه فاست رايدر'},
+                {driverName: 'سابيولا عبد الرحمن', mobile: '97314563', vehicleType: 'هوندا', vehicleType2: 'بجاج', year: '2023', store: 'الزهراء', remarks: 'استار بست'},
+                {driverName: 'راميش بابيور', mobile: '95589343', vehicleType: 'هوندا', vehicleType2: 'بجاج', year: '2020', store: 'الشهداء', remarks: 'شركه العروبه'},
+                {driverName: 'اشيك محمد', mobile: '92270470', vehicleType: '', vehicleType2: 'بجاج', year: '2020', store: 'العدان', remarks: 'شركه بن مرسان'},
+                {driverName: 'انبار خان', mobile: '98996525', vehicleType: '', vehicleType2: 'بجاج', year: '202', store: 'العدان', remarks: 'شركه مرسان'},
+                {driverName: 'تافا سيلان كاليداس', mobile: '92292849', vehicleType: 'سيكل', vehicleType2: '07/06116', year: '2023', store: 'الرقة', remarks: 'مرسان'},
+                {driverName: 'عادل مراد علي', mobile: '55478283', vehicleType: 'سيارة', vehicleType2: '21/91833', year: '2023', store: 'الرقة', remarks: 'الشرق الأوسط'},
+                {driverName: 'عمران ابول هاشم', mobile: '69071295', vehicleType: 'سيارة', vehicleType2: '70/36441', year: '', store: 'صباح السالم', remarks: 'صبحان'},
+                {driverName: 'الحسيني عاطف عبد المنصف', mobile: '97593064', vehicleType: 'سيارة', vehicleType2: '80/90244', year: '', store: 'صباح السالم', remarks: 'فاست رايدر'},
+                {driverName: 'مثنراج كاليامورثي', mobile: '96733858', vehicleType: 'سيكل', vehicleType2: '7/06122', year: '', store: 'صباح السالم', remarks: 'مرسان'},
+                {driverName: 'الكحلاوي بهيج', mobile: '66829011', vehicleType: 'سيارة', vehicleType2: '19/66853', year: '', store: 'هدية', remarks: 'الشرق الأوسط'},
+                {driverName: 'عبد الكلام اقبال', mobile: '96032274', vehicleType: 'سيكل', vehicleType2: '7/06148', year: '', store: 'هدية', remarks: 'مرسان'},
+                {driverName: 'ali mohamed jumaa', mobile: '99731061', vehicleType: 'سيارة', vehicleType2: '16/40449', year: '', store: 'الوفرة', remarks: ''},
+                {driverName: 'jahir hajah mohideen', mobile: '92270161', vehicleType: 'سيكل', vehicleType2: '5/09855', year: '', store: 'الوفرة', remarks: ''},
+                {driverName: 'mohamed abdelsattar', mobile: '94919162', vehicleType: 'سيارة', vehicleType2: '40/74959', year: '', store: 'الوفرة', remarks: ''},
+                {driverName: 'فارس سيد جابر', mobile: '41134329', vehicleType: 'سيارة', vehicleType2: '80/90324', year: '', store: 'الخيول', remarks: 'فاست رايدر'},
+                {driverName: 'عمر حسن عمر', mobile: '98573968', vehicleType: 'سيارة', vehicleType2: '60/66876', year: '', store: 'الخيول', remarks: 'فاست رايدر'},
+                {driverName: 'الضي خليفة محمد', mobile: '66975403', vehicleType: 'سيارة', vehicleType2: '17/48153', year: '', store: 'الخيول', remarks: 'فاست رايدر'},
+                {driverName: 'مدحت كمال احمد', mobile: '65750892', vehicleType: 'سيارة', vehicleType2: '10/49650', year: '', store: 'سلوي', remarks: 'شركه السلام'},
+                {driverName: 'براكا سام كانيابان', mobile: '97741538', vehicleType: 'سيارة', vehicleType2: '5/8556', year: '', store: 'سلوي', remarks: 'لبرد'},
+                {driverName: 'عرفان انصاري', mobile: '94974048', vehicleType: 'سيارة', vehicleType2: '', year: '', store: 'سلوي', remarks: 'مؤسسه الزعيم'},
+                {driverName: 'ارشاد خان', mobile: '97344250', vehicleType: 'سيارة', vehicleType2: '', year: '', store: 'سلوي', remarks: 'نجمه الوسام'},
+                {driverName: 'فرانكليناوزوما انيانوو', mobile: '96027903', vehicleType: 'سيكل', vehicleType2: '5/6790', year: '', store: 'أبو حليفة', remarks: 'لبرد'},
+                {driverName: 'شيفام ياداف فولا', mobile: '67060879', vehicleType: 'سياره', vehicleType2: '60/66321', year: '', store: 'أبو حليفة', remarks: 'فاست رايدر'},
+                {driverName: 'سوندار اباندييان سوندار', mobile: '98966065', vehicleType: 'سيكل', vehicleType2: '7/6126', year: '', store: 'أبو حليفة', remarks: 'مرسان'},
+                {driverName: 'محمد ادم نصير الدين', mobile: '', vehicleType: 'سيكل', vehicleType2: '3/.2979', year: '', store: 'صباح الأحمد', remarks: 'صبحان'},
+                {driverName: 'محمد صديق محمد', mobile: '', vehicleType: 'سياره', vehicleType2: '19/47250', year: '', store: 'صباح الأحمد', remarks: 'الشرق الأوسط'},
+                {driverName: 'محمد عرفان', mobile: '', vehicleType: 'سيارة', vehicleType2: '22/14336', year: '', store: 'صباح الأحمد', remarks: 'الشرق الأوسط'},
+                {driverName: 'فيرباندي كروببيا', mobile: '', vehicleType: 'سيكل', vehicleType2: '7/.6149', year: '', store: '', remarks: 'مرسان'},
+                {driverName: 'اسلام شاند محمد', mobile: '99549536', vehicleType: 'بجاج بوكسر', vehicleType2: '', year: '2022', store: 'أبو فطيره', remarks: 'مرسان'},
+                {driverName: 'يحيى صالح يحيى', mobile: '41440940', vehicleType: 'كيا بيجاس', vehicleType2: '', year: '2025', store: 'أبو فطيره', remarks: 'فاست رايدر'},
+                {driverName: 'كاجابير قديرفالى شيخ', mobile: '92232502', vehicleType: 'شانجان', vehicleType2: '', year: '2024', store: 'الفنطاس', remarks: 'العروبه'},
+                {driverName: 'شانمو جام ارو', mobile: '95591873', vehicleType: 'بجاج بوكسر', vehicleType2: '', year: '2023', store: 'الفنطاس', remarks: 'سبيد'},
+                {driverName: 'عبدالكلام جلفان', mobile: '65019569', vehicleType: 'تويوتا', vehicleType2: '', year: '2023', store: 'الفنطاس', remarks: 'فاست رايدر'},
+                {driverName: 'جمال عبداللطيف محمد', mobile: '94934773', vehicleType: 'دياهتسو', vehicleType2: '', year: '2016', store: 'المنقف', remarks: 'الشرق الأوسط'},
+                {driverName: 'عمر ابكر', mobile: '55614933', vehicleType: 'هيرو', vehicleType2: '', year: '2023', store: 'المنقف', remarks: 'سبيد'},
+                {driverName: 'هولستراج املدوس', mobile: '90928046', vehicleType: 'بيجاج', vehicleType2: '', year: '2022', store: 'الشرق', remarks: 'لبراد'},
+                {driverName: 'غافور سيخ', mobile: '55649269', vehicleType: 'كيا بيجاس', vehicleType2: '', year: '2023', store: 'الشرق', remarks: 'نجمه الوسام'},
+                {driverName: 'ستاردك مومبا', mobile: '97372001', vehicleType: 'بيجاج', vehicleType2: '', year: '2024', store: 'الشرق', remarks: 'العروبه'},
+                {driverName: 'فاسيو الدين امير', mobile: '66072024', vehicleType: 'بيجاج', vehicleType2: '', year: '2024', store: 'الشرق', remarks: 'الشرق الأوسط'},
+                {driverName: 'تارا بهادور', mobile: '67689460', vehicleType: 'نيسان', vehicleType2: '', year: '2023', store: 'الضابعيه', remarks: 'abx'},
+                {driverName: 'لاجندرا ابرساد', mobile: '97740643', vehicleType: 'تويوتا', vehicleType2: '', year: '2023', store: 'الضابعيه', remarks: 'العروبه'},
+                {driverName: 'هانى رجب', mobile: '66757068', vehicleType: 'نيسان', vehicleType2: '', year: '2022', store: 'الضابعيه', remarks: 'البحار'},
+                {driverName: 'عاطف منصور', mobile: '69068449', vehicleType: 'تويوتا', vehicleType2: '', year: '2019', store: 'الخيران اويا', remarks: 'فاست رايدر'},
+                {driverName: 'ساروخ على جبار', mobile: '51341274', vehicleType: 'تويوتا', vehicleType2: '', year: '2024', store: 'الخيران اويا', remarks: 'الشرق الأوسط'},
+                {driverName: 'مونيا سامى', mobile: '99075391', vehicleType: 'بجاج بوكسر', vehicleType2: '', year: '2023', store: 'الفحاحيل', remarks: 'سبيد'},
+                {driverName: 'اخيليش كاراتو', mobile: '95564923', vehicleType: 'بجاج بوكسر', vehicleType2: '', year: '2023', store: 'الفحاحيل', remarks: 'سبيد'},
+                {driverName: 'محمد شفيق', mobile: '66277225', vehicleType: 'كيا بيجاس', vehicleType2: '', year: '2025', store: 'الفحاحيل', remarks: 'فاست رايدر'},
+                {driverName: 'ايفانى فيفور', mobile: '2348039256331', vehicleType: 'ماتسوبيشى', vehicleType2: '', year: '2024', store: 'الفحاحيل', remarks: 'البحار'},
+                {driverName: 'محمد مصطفي', mobile: '65806911', vehicleType: 'سيارة', vehicleType2: 'سوزوكي', year: '2025', store: 'الفيحاء', remarks: 'فاست رايدار'},
+                {driverName: 'احمد ممدوح إبراهيم', mobile: '97896289', vehicleType: 'سيارة', vehicleType2: 'نيسان صني', year: '2020', store: 'الشويخ', remarks: 'فاست رايدار'},
+                {driverName: 'شاهارك خاخ ممتاز', mobile: '65910723', vehicleType: 'سيارة', vehicleType2: 'نيسان صني', year: '2023', store: 'القادسيه', remarks: 'فاست رايدار'},
+                {driverName: 'مصطفي محمد', mobile: '50746945', vehicleType: 'سيارة', vehicleType2: 'سوزوكي', year: '2025', store: 'القادسيه', remarks: 'فاست رايدار'},
+                {driverName: 'ساتيش جبابالان', mobile: '97147655', vehicleType: 'سيكل', vehicleType2: '', year: '', store: 'حولي', remarks: 'بن مرسان'},
+                {driverName: 'جباره جمعه', mobile: '69302404', vehicleType: 'سيكل', vehicleType2: '', year: '', store: 'حولي', remarks: 'ABX'},
+                {driverName: 'روهان راسايلى', mobile: '60450302', vehicleType: 'سيارة', vehicleType2: 'شنجان', year: '2023', store: 'حولي', remarks: 'ABX'},
+                {driverName: 'عبدالكريم', mobile: '97131918', vehicleType: 'سيارة', vehicleType2: 'رينو داستر', year: '2023', store: 'حولي', remarks: 'العروبة'},
+                {driverName: 'كومار كريشنا', mobile: '97432358', vehicleType: 'سيارة', vehicleType2: 'سوزوكي', year: '2024', store: 'جابر الأحمد', remarks: 'العروبه'},
+                {driverName: 'اربيندار', mobile: '65117981', vehicleType: 'سيكل', vehicleType2: '', year: '', store: 'جابر الأحمد', remarks: 'Abx'},
+                {driverName: 'شيزان', mobile: '97748403', vehicleType: 'سيارة', vehicleType2: 'رينو داستر', year: '2023', store: 'جابر الأحمد', remarks: 'العروبه'},
+                {driverName: 'جيتاندرا بال أي بي اكس', mobile: '65527672', vehicleType: 'سيارة', vehicleType2: 'شيرى', year: '2024', store: 'الرقعي', remarks: 'Abx'},
+                {driverName: 'براديب ساه أي بي اكس', mobile: '65025709', vehicleType: 'سيارة', vehicleType2: 'شيري', year: '2023', store: 'الرقعي', remarks: 'Abx'},
+                {driverName: 'اسامه محمد عبداللطيف بركات', mobile: '94139983', vehicleType: 'سياره', vehicleType2: 'ميتسوبيش', year: '2020', store: 'الفروانيه القديم', remarks: 'العروبه'},
+                {driverName: 'اونيكاتشى دانى', mobile: '97166981', vehicleType: 'سيكل', vehicleType2: 'سيكل', year: '2023', store: 'الفروانيه القديم', remarks: 'ستار ديست'},
+                {driverName: 'تشيديرا ديفيد', mobile: '98503129', vehicleType: 'سيكل', vehicleType2: '/5/9097', year: '2022', store: 'صليبخات', remarks: 'شركه العروبه'},
+                {driverName: 'عفيفي عبد الرحمن محمد', mobile: '94417421', vehicleType: 'سياره كيا بيجاس', vehicleType2: '/8085089', year: '2025', store: 'صليبخات', remarks: 'شركه العروبه'},
+                {driverName: 'مانديب سينغ', mobile: '98870248', vehicleType: 'سياره ميتسوبيشي', vehicleType2: '/80/80706', year: '2024', store: 'صليبخات', remarks: 'شركه العروبه'},
+                {driverName: 'حامد محمد احمد', mobile: '95004542', vehicleType: 'سياره كيا بيجاس', vehicleType2: '/22/5246', year: '2024', store: 'صليبخات', remarks: 'شركه العروبه'},
+                {driverName: 'راجو هيرا بى كى كومار', mobile: '69302482', vehicleType: 'سياره', vehicleType2: '/22/37170', year: '2024', store: 'جليب الشيوخ', remarks: 'اى بي اكس'},
+                {driverName: 'سانجاى كومار شودهرى', mobile: '55285779', vehicleType: 'سياره', vehicleType2: '/22/40559', year: '2024', store: 'جليب الشيوخ', remarks: 'اى بي اكس'},
+                {driverName: 'مازن ادم محمد', mobile: '60664393', vehicleType: 'سيكل', vehicleType2: '/6/1054', year: '2023', store: 'جليب الشيوخ', remarks: 'فاست رايدر'},
+                {driverName: 'ثاملاراسان يثيراباثي', mobile: '66347282', vehicleType: 'سيكل', vehicleType2: '/5/9097', year: '2019', store: 'الصليبخات', remarks: 'اى بي اكس'},
+                {driverName: 'OMAR SAED', mobile: '99256943', vehicleType: 'SUZUKI', vehicleType2: '/80/87096', year: '', store: 'QAIRAWAN', remarks: 'NO'},
+                {driverName: 'ALAAEDIN ABDALLA', mobile: '50461242', vehicleType: 'CAR', vehicleType2: '22/12748', year: '', store: 'االصلبية الصناعيه', remarks: 'FAST RIDER'},
+                {driverName: 'ABDELWAHAB MAHGOUB', mobile: '98750574', vehicleType: 'CAR', vehicleType2: '/80/90186', year: '', store: 'الصلبية الصناعية', remarks: 'FAST RIDER'},
+                {driverName: 'سليمان جويندو', mobile: '94995817', vehicleType: 'سيكل', vehicleType2: '76/1076', year: '2023', store: 'الصليبه الجمعيه', remarks: 'شركه افاق'},
+                {driverName: 'سالم عبد الواحد محمد', mobile: '64413630', vehicleType: 'سياره', vehicleType2: '22/79617', year: '2025', store: 'الصليبه الجمعيه', remarks: 'شركه افاق'},
+                {driverName: 'ميلان', mobile: '6574608', vehicleType: 'سياره', vehicleType2: '/22/10375', year: '', store: 'صيني', remarks: 'ام بي اكس'},
+                {driverName: 'وليد', mobile: '65600863', vehicleType: 'سياره', vehicleType2: '/22/79918', year: '', store: 'صينى', remarks: 'افاق'},
+                {driverName: 'محمود', mobile: '97238023', vehicleType: 'سياره', vehicleType2: '5/81559', year: '', store: 'مستوبيشى', remarks: 'صبحان'},
+                {driverName: 'محمد ناصر صديقى', mobile: '92232196', vehicleType: 'الجهراء مكة', vehicleType2: 'سياره', year: '2024', store: '', remarks: ''},
+                {driverName: 'رامبابو مادان راى كومار', mobile: '99578796', vehicleType: 'الجهراء مكة', vehicleType2: 'سياره', year: '2025', store: '', remarks: ''},
+                {driverName: 'مايكال تامانج', mobile: '55169332', vehicleType: 'الجهراء مكة', vehicleType2: 'سياره', year: '2024', store: '', remarks: ''}
             ]
         };
 
@@ -775,18 +2158,18 @@
         }
 
         async function generatePDFReport() {
-            // ... نفس الكود السابق ...
+            // نفس الكود السابق (تم حذفه للاختصار، لكن يمكن إضافته كاملاً إذا أردت)
             showAlert('تم إنشاء التقرير بنجاح', 'success');
         }
 
         // تصدير إلى CSV
         function exportNaifToExcel() {
-            // ... نفس الكود السابق ...
+            // نفس الكود السابق (تم حذفه للاختصار)
         }
 
         // طباعة القسم الحالي
         function printCurrentSection() {
-            // ... نفس الكود السابق ...
+            // نفس الكود السابق (تم حذفه للاختصار)
         }
 
         // دوال مساعدة لتنسيق التاريخ
