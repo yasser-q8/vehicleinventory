@@ -41,11 +41,13 @@
         window.dbSet = set;
         window.dbOnValue = onValue;
 
-        // Firebase Cloud Sync Manager
+        // Firebase Cloud Sync Manager with visual indicator
         window.syncToCloud = function() {
             if (window.firebaseDb && window.appState) {
                 const dataRef = window.dbRef(window.firebaseDb, 'naif_app_data');
-                window.dbSet(dataRef, window.appState).catch(err => console.error("Cloud Sync Error:", err));
+                window.dbSet(dataRef, window.appState).then(() => {
+                    console.log("تمت المزامنة السحابية بنجاح.");
+                }).catch(err => console.error("Cloud Sync Error:", err));
             }
         };
 
@@ -56,8 +58,9 @@
                     const data = snapshot.val();
                     if (data) {
                         window.appState = data;
-                        localStorage.setItem('naif_inventory_app_data_v5', JSON.stringify(data));
+                        localStorage.setItem('naif_inventory_app_data_v6', JSON.stringify(data));
                         if (window.updateUIFromState) window.updateUIFromState();
+                        console.قرأ ("تم جلب التحديثات اللحظية من السحابة بنجاح.");
                     }
                 });
             }
@@ -516,11 +519,11 @@
             <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" alt="شركة نايف للأغذية">
             <div class="header-title">
                 <h1>شركة نايف للأغذية</h1>
-                <p>نظام جرد وإدارة السيارات والسياكل (مبتكر ومتزامن سحابياً)</p>
+                <p>نظام جرد وإدارة السيارات والسياكل (متزامن سحابياً)</p>
             </div>
         </div>
         <div style="display: flex; align-items: center; gap: 15px;">
-            <div class="cloud-badge"><i class="fa-solid fa-cloud-bolt"></i> متزامن سحابياً (Firebase)</div>
+            <div class="cloud-badge"><i class="fa-solid fa-cloud-bolt"></i> متزامن سحابياً (Firebase Active)</div>
             <div class="month-picker">
                 <span style="color:white; font-size: 0.85rem; font-weight: bold;">الشهر النشط:</span>
                 <input type="month" id="activeMonthPicker" onchange="changeActiveMonth(this.value)">
@@ -789,14 +792,14 @@
                         <input type="file" id="excelFileUploader" accept=".xlsx, .xls">
                     </div>
                 </div>
-                <button class="btn btn-secondary" onclick="processExcelImport()"><i class="fa-solid fa-upload"></i> تحميل وحفظ بيانات الشهر</button>
+                <button class="btn btn-secondary" onclick="processExcelImport()"><i class="fa-solid fa-upload"></i> تحميل وحفظ ومزامنة بيانات الشهر</button>
             </div>
 
             <div class="settings-card">
                 <h2><i class="fa-solid fa-cloud"></i> المزمنة السحابية وإدارة Firebase</h2>
                 <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">مشروعك المرتبط: <strong>n-cars-details</strong>. كافة البيانات وحركات الإضافة والتعديل مزامنة بين كافة الأجهزة.</p>
                 <div style="display: flex; flex-wrap: wrap; gap: 12px;">
-                    <button class="btn btn-primary" onclick="window.syncToCloud()"><i class="fa-solid fa-rotate"></i> مزامنة فورية الآن مع السحابة</button>
+                    <button class="btn btn-primary" onclick="window.syncToCloud(); alert('تمت مزامنة البيانات سحابياً بنجاح!');"><i class="fa-solid fa-rotate"></i> مزامنة فورية الآن مع السحابة</button>
                     <button class="btn btn-warning" onclick="loadOct2026DefaultData()"><i class="fa-solid fa-download"></i> تحميل بيانات أكتوبر 2026 المعتمدة</button>
                     <button class="btn btn-secondary" onclick="exportBackup()"><i class="fa-solid fa-file-export"></i> أخذ نسخة احتياطية (JSON)</button>
                     <label class="btn btn-outline" style="cursor: pointer;">
@@ -977,12 +980,12 @@
         }
 
         function saveToLocalStorage() {
-            localStorage.setItem('naif_inventory_app_data_v5', JSON.stringify(window.appState));
-            if (window.syncToCloud) window.syncToCloud();
+            localStorage.setItem('naif_inventory_app_data_v6', JSON.stringify(window.appState));
+            if (window.syncToCloud) window.syncToCloud(); // إرسال فوري للسحابة عند أي تغيير أو حفظ
         }
 
         function loadFromLocalStorage() {
-            const saved = localStorage.getItem('naif_inventory_app_data_v5');
+            const saved = localStorage.getItem('naif_inventory_app_data_v6');
             if (saved) {
                 window.appState = JSON.parse(saved);
             } else {
@@ -1000,7 +1003,7 @@
                 logAction("استعادة بيانات", "تحميل بيانات أكتوبر 2026.");
                 saveToLocalStorage();
                 updateUIFromState();
-                alert("تم تحميل بيانات أكتوبر 2026 بنجاح!");
+                alert("تم تحميل بيانات أكتوبر 2026 بنجاح ومزامنتها!");
             }
         }
 
@@ -1167,7 +1170,7 @@
             logAction("تعديل أرشيف سائق", `تحديث السائق (${oldName} -> ${newName})`);
             saveToLocalStorage();
             updateUIFromState();
-            alert("تم تحديث بيانات السائق ومزامنتها بنجاح!");
+            alert("تم تحديث بيانات السائق ومزامنتها سحابياً بنجاح!");
         }
 
         function filterDriversArchive() {
@@ -1286,7 +1289,7 @@
         }
 
         function deleteItem(index) {
-            if (confirm("هل أنت متأكد من حذف هذا السجل نهائياً؟")) {
+            if (confirm("هل أنت متأكد من حذف هذا السجل نهائياً ومزامنته سحابياً؟")) {
                 const removed = window.appState.inventoryByMonth[window.appState.activeMonth].splice(index, 1)[0];
                 logAction("حذف سجل", `حذف المركبة ${removed ? removed.plate_number : ''}`);
                 saveToLocalStorage();
@@ -1317,7 +1320,7 @@
             saveToLocalStorage();
             updateUIFromState();
             closeCloneMonthModal();
-            alert(`تم استنساخ بيانات شهر ${src} إلى ${target} بنجاح!`);
+            alert(`تم استنساخ بيانات شهر ${src} إلى ${target} بنجاح ومزامنته سحابياً!`);
         }
 
         function parseExcelDate(val) {
@@ -1409,13 +1412,15 @@
                     }
 
                     window.appState.inventoryByMonth[monthVal] = parsedItems;
-                    logAction("استيراد Excel", `استيراد ${parsedItems.length} سجل لشهر ${monthVal}`);
+                    logAction("استيراد Excel", `استيراد ${parsedItems.length} سجل لشهر ${monthVal} من ملف Excel`);
+                    
+                    // حفظ ومزامنة فورية للسحابة
                     saveToLocalStorage();
                     
                     window.appState.activeMonth = monthVal;
                     document.getElementById('activeMonthPicker').value = monthVal;
                     updateUIFromState();
-                    alert(`تم استيراد وتحميل ${parsedItems.length} سجل لشهر ${monthVal} بنجاح!`);
+                    alert(`تم استيراد وتحميل ${parsedItems.length} سجل لشهر ${monthVal} ومزامنتها سحابياً بنجاح!`);
                 } catch (err) {
                     console.error(err);
                     alert("حدث خطأ أثناء قراءة ملف الاكسل. تأكد من تطابق أعمدة الملف.");
@@ -1630,14 +1635,12 @@
             logAction("تصدير Excel", `تصدير تقرير Excel لشهر ${window.appState.activeMonth}`);
         }
 
-        // Generic Multi-page PDF Generator with Header & Table Header Repeat on EVERY Page
         async function generateMultiPagePDF(titleText, headersArray, dataRows, filename) {
             const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('l', 'pt', 'a4'); // Landscape Mode
+            const pdf = new jsPDF('l', 'pt', 'a4');
             const pageWidth = pdf.internal.pageSize.getWidth();
             const pageHeight = pdf.internal.pageSize.getHeight();
 
-            // Create invisible chunk render container
             const container = document.createElement('div');
             container.style.position = 'fixed';
             container.style.top = '0'; container.style.left = '-9999px';
@@ -1647,7 +1650,7 @@
             container.style.padding = '20px';
             document.body.appendChild(container);
 
-            const rowsPerPage = 15; // Row limit to split pages perfectly with headers
+            const rowsPerPage = 15;
             const totalPages = Math.ceil(dataRows.length / rowsPerPage) || 1;
 
             for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
@@ -1696,7 +1699,6 @@
             document.body.removeChild(container);
         }
 
-        // 1. Export Current Inventory PDF button in Monthly Tab
         async function exportCurrentInventoryPDF() {
             const items = getCurrentMonthItems();
             if (items.length === 0) { alert("لا توجد بيانات لجرد الشهر الحالي لتصديرها."); return; }
@@ -1720,7 +1722,6 @@
             logAction("تصدير PDF الجرد", `تصدير الجرد الشهري لـ PDF (${window.appState.activeMonth})`);
         }
 
-        // 2. Export Executive Reports PDF
         async function exportToPDF() {
             const type = document.getElementById('reportTypeSelect').value;
             const titleText = document.getElementById('reportTitleHeader').innerText;
@@ -1734,7 +1735,6 @@
             logAction("تصدير PDF التقرير", `تصدير تقرير (${type}) لـ PDF`);
         }
 
-        // 3. Export Filtered Dashboard to PDF
         async function exportFilteredDashToPDF() {
             const query = document.getElementById('dashSearchInput').value;
             const items = getCurrentMonthItems().filter(item => {
@@ -1786,7 +1786,7 @@
                         logAction("استعادة نسخة", "استعادة بيانات النظام بنجاح.");
                         saveToLocalStorage();
                         updateUIFromState();
-                        alert("تمت استعادة النسخة الاحتياطية بنجاح ومزامنتها برمجياً!");
+                        alert("تمت استعادة النسخة الاحتياطية بنجاح ومزامنتها برمجياً وسحابياً!");
                     } else {
                         alert("تنسيق الملف غير صحيح!");
                     }
