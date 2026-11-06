@@ -41,13 +41,18 @@
         window.dbSet = set;
         window.dbOnValue = onValue;
 
-        // Firebase Cloud Sync Manager with visual indicator
-        window.syncToCloud = function() {
+        // Firebase Cloud Sync Manager
+        window.syncToCloud = function(callback) {
             if (window.firebaseDb && window.appState) {
                 const dataRef = window.dbRef(window.firebaseDb, 'naif_app_data');
                 window.dbSet(dataRef, window.appState).then(() => {
-                    console.log("تمت المزامنة السحابية بنجاح.");
-                }).catch(err => console.error("Cloud Sync Error:", err));
+                    updateSyncBadge(true);
+                    if(callback) callback(true);
+                }).catch(err => {
+                    console.error("Cloud Sync Error:", err);
+                    updateSyncBadge(false, err.message);
+                    if(callback) callback(false, err);
+                });
             }
         };
 
@@ -56,15 +61,31 @@
                 const dataRef = window.dbRef(window.firebaseDb, 'naif_app_data');
                 window.dbOnValue(dataRef, (snapshot) => {
                     const data = snapshot.val();
-                    if (data) {
+                    if (data && data.inventoryByMonth && data.stores) {
                         window.appState = data;
-                        localStorage.setItem('naif_inventory_app_data_v6', JSON.stringify(data));
+                        localStorage.setItem('naif_inventory_app_data_v9', JSON.stringify(data));
                         if (window.updateUIFromState) window.updateUIFromState();
-                        console.قرأ ("تم جلب التحديثات اللحظية من السحابة بنجاح.");
+                        updateSyncBadge(true);
                     }
+                }, (error) => {
+                    console.error("Firebase Read Error:", error);
+                    updateSyncBadge(false, error.message);
                 });
             }
         };
+
+        function updateSyncBadge(isOk, errMsg = "") {
+            const badge = document.getElementById('cloudStatusBadge');
+            if(badge) {
+                if(isOk) {
+                    badge.innerHTML = `<i class="fa-solid fa-cloud-circle-check" style="color: #4ade80;"></i> متصل ومزامن سحابياً`;
+                    badge.style.background = "rgba(46, 125, 50, 0.3)";
+                } else {
+                    badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color: #f87171;"></i> خطأ في المزامنة`;
+                    badge.style.background = "rgba(211, 47, 47, 0.4)";
+                }
+            }
+        }
     </script>
 
     <style>
@@ -94,7 +115,6 @@
             padding-bottom: 70px;
         }
 
-        /* Top Header */
         header {
             background: linear-gradient(135deg, #d32f2f, #b71c1c);
             color: white;
@@ -135,15 +155,16 @@
 
         .cloud-badge {
             background: rgba(255,255,255,0.2);
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 12px;
-            font-size: 0.75rem;
+            font-size: 0.78rem;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+            font-weight: bold;
+            transition: 0.3s;
         }
 
-        /* Nav Tabs */
         nav {
             background: #ffffff;
             border-bottom: 1px solid var(--border-color);
@@ -179,7 +200,6 @@
             color: var(--primary);
         }
 
-        /* Main Container */
         .container {
             max-width: 1200px;
             width: 95%;
@@ -195,7 +215,6 @@
             display: block;
         }
 
-        /* Floating Stat Cards */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -211,19 +230,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            animation: cardFloat 5s ease-in-out infinite;
             border-right: 4px solid var(--primary);
-            transition: transform 0.2s;
         }
 
-        .floating-stat-card:nth-child(2) { animation-delay: 1s; border-right-color: var(--secondary); }
-        .floating-stat-card:nth-child(3) { animation-delay: 2s; border-right-color: #2e7d32; }
-        .floating-stat-card:nth-child(4) { animation-delay: 3s; border-right-color: #ed6c02; }
-
-        @keyframes cardFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
-        }
+        .floating-stat-card:nth-child(2) { border-right-color: var(--secondary); }
+        .floating-stat-card:nth-child(3) { border-right-color: #2e7d32; }
+        .floating-stat-card:nth-child(4) { border-right-color: #ed6c02; }
 
         .stat-info h3 {
             font-size: 0.8rem;
@@ -243,7 +255,6 @@
             color: var(--primary);
         }
 
-        /* Filter & Action Section */
         .action-bar {
             background: white;
             padding: 15px;
@@ -286,11 +297,6 @@
             gap: 8px;
         }
 
-        .month-picker label {
-            font-weight: 600;
-            font-size: 0.85rem;
-        }
-
         .month-picker input {
             padding: 7px 10px;
             border: 1px solid #ccc;
@@ -315,10 +321,8 @@
         .btn-primary:hover { background: var(--primary-dark); }
         .btn-secondary { background: var(--secondary); color: white; }
         .btn-success { background: #2e7d32; color: white; }
-        .btn-warning { background: #ed6c02; color: white; }
         .btn-outline { background: transparent; border: 1px solid #ccc; color: #333; }
 
-        /* Tables & Cards Responsiveness with Zebra Striping */
         .table-responsive {
             background: white;
             border-radius: 10px;
@@ -347,10 +351,8 @@
             font-weight: 700;
         }
 
-        /* Zebra Striping */
         tr:nth-child(even) { background-color: #f0f7ff; }
         tr:nth-child(odd) { background-color: #ffffff; }
-        tr:hover { background-color: #e2e8f0 !important; }
 
         .badge {
             padding: 4px 8px;
@@ -415,93 +417,24 @@
         }
 
         .form-group { margin-bottom: 12px; }
-
-        .form-group label {
-            display: block;
-            font-size: 0.8rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px; }
         .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 0.85rem;
+            width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.85rem;
         }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
         .autocomplete-container { position: relative; }
         .autocomplete-items {
-            position: absolute;
-            border: 1px solid #d4d4d4;
-            border-bottom: none;
-            border-top: none;
-            z-index: 99;
-            top: 100%; left: 0; right: 0;
-            max-height: 150px;
-            overflow-y: auto;
-            background: white;
-            border-radius: 0 0 6px 6px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: absolute; border: 1px solid #d4d4d4; z-index: 99; top: 100%; left: 0; right: 0;
+            max-height: 150px; overflow-y: auto; background: white; border-radius: 0 0 6px 6px;
         }
-        .autocomplete-items div {
-            padding: 8px 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #d4d4d4;
-            font-size: 0.85rem;
-        }
-        .autocomplete-items div:hover {
-            background-color: #ffebee;
-            color: var(--primary);
-        }
+        .autocomplete-items div { padding: 8px 10px; cursor: pointer; border-bottom: 1px solid #d4d4d4; font-size: 0.85rem; }
+        .autocomplete-items div:hover { background-color: #ffebee; color: var(--primary); }
 
         .signature-card {
-            position: fixed;
-            bottom: 15px; left: 15px;
-            background: #ffffff;
-            color: #0d47a1;
-            padding: 7.8px 13px;
-            border-radius: 7px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 0.75rem;
-            font-weight: 600;
-            z-index: 1000;
-            animation: float 6s ease-in-out infinite;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 2px solid #d32f2f;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .signature-card:hover { transform: scale(1.04); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
-
-        .signature-card .name { font-size: 0.8rem; font-weight: 700; margin-bottom: 2px; color: #0d47a1; }
-        .signature-card .title { font-size: 0.65rem; color: #1565c0; font-weight: 500; }
-
-        @keyframes float { 
-            0% { transform: translateY(0px); } 
-            50% { transform: translateY(-10px); } 
-            100% { transform: translateY(0px); } 
-        }
-
-        @media (max-width: 768px) {
-            .form-row { grid-template-columns: 1fr; }
-            .signature-card {
-                position: relative;
-                bottom: auto; left: auto;
-                margin: 20px auto 0;
-                width: fit-content;
-                animation: none;
-            }
+            position: fixed; bottom: 15px; left: 15px; background: #ffffff; color: #0d47a1;
+            padding: 7.8px 13px; border-radius: 7px; box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+            font-size: 0.75rem; font-weight: 600; z-index: 1000; border: 2px solid #d32f2f; text-decoration: none; display: inline-block;
         }
 
         @media print {
@@ -513,17 +446,16 @@
 </head>
 <body>
 
-    <!-- Header Section -->
     <header>
         <div class="header-brand">
             <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" alt="شركة نايف للأغذية">
             <div class="header-title">
                 <h1>شركة نايف للأغذية</h1>
-                <p>نظام جرد وإدارة السيارات والسياكل (متزامن سحابياً)</p>
+                <p>نظام جرد وإدارة السيارات والسياكل (Realtime Cloud)</p>
             </div>
         </div>
         <div style="display: flex; align-items: center; gap: 15px;">
-            <div class="cloud-badge"><i class="fa-solid fa-cloud-bolt"></i> متزامن سحابياً (Firebase Active)</div>
+            <div class="cloud-badge" id="cloudStatusBadge"><i class="fa-solid fa-cloud"></i> جاري الاتصال...</div>
             <div class="month-picker">
                 <span style="color:white; font-size: 0.85rem; font-weight: bold;">الشهر النشط:</span>
                 <input type="month" id="activeMonthPicker" onchange="changeActiveMonth(this.value)">
@@ -531,7 +463,6 @@
         </div>
     </header>
 
-    <!-- Navigation Tabs -->
     <nav>
         <button class="nav-btn active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-line"></i> لوحة التحكم</button>
         <button class="nav-btn" onclick="switchTab('inventory')"><i class="fa-solid fa-list-check"></i> الجرد الشهري</button>
@@ -541,12 +472,10 @@
         <button class="nav-btn" onclick="switchTab('settings')"><i class="fa-solid fa-sliders"></i> الإعدادات السحابية</button>
     </nav>
 
-    <!-- Content Area -->
     <div class="container">
 
         <!-- TAB 1: DASHBOARD -->
         <div id="dashboard" class="tab-content active">
-            <!-- Floating Stat Cards -->
             <div class="stats-grid">
                 <div class="floating-stat-card">
                     <div class="stat-info">
@@ -578,7 +507,6 @@
                 </div>
             </div>
 
-            <!-- Quick Table Preview -->
             <div class="action-bar">
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                     <h3 style="font-size: 1rem;"><i class="fa-solid fa-magnifying-glass"></i> المعاينة والبحث الفوري</h3>
@@ -586,7 +514,7 @@
                 </div>
                 <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="dashSearchInput" placeholder="بحث بأي حرف (سائق، سنة الصنع، رقم مركبة، فرع...)" onkeyup="filterDashTable()">
+                    <input type="text" id="dashSearchInput" placeholder="بحث بأي حرف..." onkeyup="filterDashTable()">
                 </div>
             </div>
 
@@ -607,9 +535,7 @@
                             <th>ملاحظات</th>
                         </tr>
                     </thead>
-                    <tbody id="dashTableBody">
-                        <!-- Dynamic content -->
-                    </tbody>
+                    <tbody id="dashTableBody"></tbody>
                 </table>
             </div>
         </div>
@@ -624,7 +550,7 @@
                 </div>
                 <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="inventorySearch" placeholder="بحث فوري بالحرف في الجرد..." onkeyup="filterInventoryTable()">
+                    <input type="text" id="inventorySearch" placeholder="بحث فوري بالحرف..." onkeyup="filterInventoryTable()">
                 </div>
             </div>
 
@@ -646,9 +572,7 @@
                             <th class="no-print">إجراءات</th>
                         </tr>
                     </thead>
-                    <tbody id="inventoryTableBody">
-                        <!-- Dynamic content -->
-                    </tbody>
+                    <tbody id="inventoryTableBody"></tbody>
                 </table>
             </div>
         </div>
@@ -657,8 +581,6 @@
         <div id="reports" class="tab-content">
             <div class="settings-card">
                 <h2><i class="fa-solid fa-chart-pie"></i> منشئ التقارير التنفيذية للإدارة العليا</h2>
-                <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">اختر نوع التقرير المطلوب، وقم بتصفية البيانات للحصول على تقارير رسمية تحتوي على الشعار وتكرار الهيدر في كل صفحة.</p>
-                
                 <div class="form-row">
                     <div class="form-group">
                         <label>نوع التقرير المطلوبة:</label>
@@ -676,7 +598,7 @@
 
                     <div class="form-group" id="filterDriverGroup">
                         <label>تصفية باسم السائق / الرقم الوظيفي:</label>
-                        <input type="text" id="reportDriverQuery" placeholder="اكتب حرف أو اسم السائق..." onkeyup="generateReport()">
+                        <input type="text" id="reportDriverQuery" placeholder="اكتب اسم السائق..." onkeyup="generateReport()">
                     </div>
 
                     <div class="form-group" id="filterVehicleGroup" style="display:none;">
@@ -691,7 +613,6 @@
                 </div>
             </div>
 
-            <!-- Report Live Preview Box -->
             <div id="reportPreviewContainer" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 15px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
@@ -702,8 +623,8 @@
                         </div>
                     </div>
                     <div style="text-align: left; font-size: 0.8rem; color: #555;">
-                        <p><strong>تاريخ التقرير:</strong> <span id="reportGeneratedDate">2026-11-05</span></p>
-                        <p><strong>الشهر المعتمد:</strong> <span id="reportActiveMonthLabel">2026-10</span></p>
+                        <p><strong>التاريخ:</strong> <span id="reportGeneratedDate"></span></p>
+                        <p><strong>الشهر المعتمد:</strong> <span id="reportActiveMonthLabel"></span></p>
                     </div>
                 </div>
 
@@ -724,12 +645,10 @@
         <div id="drivers_archive" class="tab-content">
             <div class="settings-card">
                 <h2><i class="fa-solid fa-address-book"></i> أرشيف السائقين والموبايلات الشامل</h2>
-                <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">يتم تجميع أسماء السائقين وأرقام هواتفهم تلقائياً. **الأسماء أو الهواتف المكررة تلون باللون الأحمر**. يمكنك تعديل الاسم، الموبايل، أو الرقم الوظيفي فقط.</p>
-                
                 <div class="action-bar" style="box-shadow: none; padding: 0; margin-bottom: 15px;">
                     <div class="search-box">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="archiveSearchInput" placeholder="بحث باسم السائق، الرقم الوظيفي، أو الموبايل..." onkeyup="filterDriversArchive()">
+                        <input type="text" id="archiveSearchInput" placeholder="بحث باسم السائق أو الموبايل..." onkeyup="filterDriversArchive()">
                     </div>
                 </div>
 
@@ -747,9 +666,7 @@
                                 <th class="no-print">إجراء</th>
                             </tr>
                         </thead>
-                        <tbody id="driversArchiveBody">
-                            <!-- Dynamic Archive -->
-                        </tbody>
+                        <tbody id="driversArchiveBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -758,7 +675,7 @@
         <!-- TAB 5: AUDIT LOG -->
         <div id="audit" class="tab-content">
             <div class="settings-card">
-                <h2><i class="fa-solid fa-clock-rotate-left"></i> سجل الحركات والعمليات (متزامن سحابياً حتى 500 حركة)</h2>
+                <h2><i class="fa-solid fa-clock-rotate-left"></i> سجل الحركات والعمليات (متزامن سحابياً)</h2>
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -769,9 +686,7 @@
                                 <th>التفاصيل</th>
                             </tr>
                         </thead>
-                        <tbody id="auditTableBody">
-                            <!-- Dynamic Audit Log -->
-                        </tbody>
+                        <tbody id="auditTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -781,7 +696,6 @@
         <div id="settings" class="tab-content">
             <div class="settings-card">
                 <h2><i class="fa-solid fa-file-excel"></i> استيراد بيانات شهر سابق من ملف Excel</h2>
-                <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">ترتيب الأعمدة المدعومة: `# | الرقم الوظيفي | اسم السائق | الهاتف | الفرع / المطعم | النوع | رقم المركبة | الموديل | الإعلان | انتهاء الإعلان | ملاحظات`</p>
                 <div class="form-row" style="align-items: flex-end;">
                     <div class="form-group">
                         <label>اختر الشهر المستهدف للاستيراد:</label>
@@ -797,10 +711,8 @@
 
             <div class="settings-card">
                 <h2><i class="fa-solid fa-cloud"></i> المزمنة السحابية وإدارة Firebase</h2>
-                <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">مشروعك المرتبط: <strong>n-cars-details</strong>. كافة البيانات وحركات الإضافة والتعديل مزامنة بين كافة الأجهزة.</p>
                 <div style="display: flex; flex-wrap: wrap; gap: 12px;">
-                    <button class="btn btn-primary" onclick="window.syncToCloud(); alert('تمت مزامنة البيانات سحابياً بنجاح!');"><i class="fa-solid fa-rotate"></i> مزامنة فورية الآن مع السحابة</button>
-                    <button class="btn btn-warning" onclick="loadOct2026DefaultData()"><i class="fa-solid fa-download"></i> تحميل بيانات أكتوبر 2026 المعتمدة</button>
+                    <button class="btn btn-primary" onclick="manualSync()"><i class="fa-solid fa-rotate"></i> مزامنة فورية الآن مع السحابة</button>
                     <button class="btn btn-secondary" onclick="exportBackup()"><i class="fa-solid fa-file-export"></i> أخذ نسخة احتياطية (JSON)</button>
                     <label class="btn btn-outline" style="cursor: pointer;">
                         <i class="fa-solid fa-file-import"></i> استعادة نسخة احتياطية
@@ -814,13 +726,11 @@
                 <div class="action-bar" style="box-shadow: none; padding: 0; margin-bottom: 10px;">
                     <div class="search-box">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="newStoreInput" placeholder="اكتب اسم فرع جديد لإضافته...">
+                        <input type="text" id="newStoreInput" placeholder="اكتب اسم فرع جديد...">
                     </div>
                     <button class="btn btn-primary" onclick="addNewStore()"><i class="fa-solid fa-plus"></i> إضافة الفرع</button>
                 </div>
-                <div id="storesTagsContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
-                    <!-- Stores Tags -->
-                </div>
+                <div id="storesTagsContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
             </div>
         </div>
 
@@ -837,8 +747,8 @@
                 <input type="hidden" id="editIndex">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>الرقم الوظيفي (FILE) - اختياري:</label>
-                        <input type="text" id="formEmpId" placeholder="اختياري (مثال: 5452)">
+                        <label>الرقم الوظيفي (FILE):</label>
+                        <input type="text" id="formEmpId" placeholder="اختياري">
                     </div>
                     <div class="form-group">
                         <label>اسم السائق:</label>
@@ -851,8 +761,8 @@
                         <input type="text" id="formMobile" placeholder="60757596">
                     </div>
                     <div class="form-group autocomplete-container">
-                        <label>الفرع / المطعم (بحث بالحرف):</label>
-                        <input type="text" id="formStoreInput" autocomplete="off" placeholder="اكتب اسم الفرع أو ابحث بالحرف..." oninput="onStoreInputChanged()" required>
+                        <label>الفرع / المطعم:</label>
+                        <input type="text" id="formStoreInput" autocomplete="off" placeholder="اكتب اسم الفرع..." oninput="onStoreInputChanged()" required>
                         <div id="storeAutocompleteList" class="autocomplete-items" style="display:none;"></div>
                     </div>
                 </div>
@@ -888,7 +798,7 @@
                 </div>
                 <div class="form-group">
                     <label>ملاحظات إضافية:</label>
-                    <textarea id="formRemarks" rows="3" placeholder="أدخل أي ملاحظات عن المركبة أو السائق..."></textarea>
+                    <textarea id="formRemarks" rows="3" placeholder="ملاحظات..."></textarea>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
                     <button type="button" class="btn btn-outline" onclick="closeItemModal()">إلغاء</button>
@@ -920,7 +830,6 @@
         </div>
     </div>
 
-    <!-- توقيع المطور المتطاير -->
     <a href="https://yasser-q8.github.io/myprofile/#" class="signature-card" target="_blank" rel="noopener noreferrer">
         <div class="name">Yasser Elkhateeb</div>
         <div class="title">مطور البرنامج 67011143</div>
@@ -943,11 +852,6 @@
             "غرب أبو فطيرة الحرفية", "جمعية الزهراء التعاونية", "خيطان شارع المطار", "الاحمدي", "البحرين"
         ];
 
-        const DEFAULT_OCT_2026_DATA = [
-            { id: 1, emp_id: "5452", driver_name: "امير", mobile: "60757596", store: "الاحمدي", vehicle_type: "BIKE", plate_number: "23/40447", year: "2026", has_adv: "يوجد", adv_exp: "2026-11-20", remarks: "" },
-            { id: 2, emp_id: "2047", driver_name: "شكيل احمد دوس خان", mobile: "51336969", store: "البحرين", vehicle_type: "CAR", plate_number: "22/12421", year: "2023", has_adv: "لا يوجد", adv_exp: "2026-10-15", remarks: "" }
-        ];
-
         window.appState = {
             activeMonth: "2026-10",
             stores: [],
@@ -959,7 +863,10 @@
             loadFromLocalStorage();
             document.getElementById('activeMonthPicker').value = window.appState.activeMonth;
             updateUIFromState();
-            if (window.initCloudListener) window.initCloudListener();
+            
+            if (window.initCloudListener) {
+                window.initCloudListener();
+            }
         });
 
         window.updateUIFromState = function() {
@@ -980,31 +887,47 @@
         }
 
         function saveToLocalStorage() {
-            localStorage.setItem('naif_inventory_app_data_v6', JSON.stringify(window.appState));
-            if (window.syncToCloud) window.syncToCloud(); // إرسال فوري للسحابة عند أي تغيير أو حفظ
+            localStorage.setItem('naif_inventory_app_data_v9', JSON.stringify(window.appState));
+            if (window.syncToCloud) {
+                window.syncToCloud();
+            }
+        }
+
+        function manualSync() {
+            if (window.syncToCloud) {
+                window.syncToCloud((success, err) => {
+                    if (success) {
+                        alert("تمت المزامنة السحابية بنجاح وتحديث كافة الأجهزة المتصلة!");
+                    } else {
+                        alert("فشلت المزامنة. تأكد من قواعد الأمان (Rules) في Firebase Realtime Database. الخطأ: " + (err ? err.message : "غير معروف"));
+                    }
+                });
+            } else {
+                alert("نظام الاتصال السحابي لم يتم تحميله بعد.");
+            }
         }
 
         function loadFromLocalStorage() {
-            const saved = localStorage.getItem('naif_inventory_app_data_v6');
+            const saved = localStorage.getItem('naif_inventory_app_data_v9');
             if (saved) {
-                window.appState = JSON.parse(saved);
+                try {
+                    window.appState = JSON.parse(saved);
+                } catch (e) {
+                    initDefaultData();
+                }
             } else {
-                window.appState.stores = [...DEFAULT_STORES];
-                window.appState.inventoryByMonth["2026-10"] = [...DEFAULT_OCT_2026_DATA];
-                window.appState.auditLog = [];
-                logAction("تهيئة النظام", "بدء التشغيل بالبيانات المعتمدة.");
-                saveToLocalStorage();
+                initDefaultData();
             }
         }
 
-        function loadOct2026DefaultData() {
-            if (confirm("هل تريد استعادة بيانات جرد شهر أكتوبر 2026 المعتمدة؟")) {
-                window.appState.inventoryByMonth["2026-10"] = JSON.parse(JSON.stringify(DEFAULT_OCT_2026_DATA));
-                logAction("استعادة بيانات", "تحميل بيانات أكتوبر 2026.");
-                saveToLocalStorage();
-                updateUIFromState();
-                alert("تم تحميل بيانات أكتوبر 2026 بنجاح ومزامنتها!");
-            }
+        function initDefaultData() {
+            window.appState.stores = [...DEFAULT_STORES];
+            window.appState.inventoryByMonth["2026-10"] = [
+                { id: 1, emp_id: "5452", driver_name: "امير", mobile: "60757596", store: "الاحمدي", vehicle_type: "BIKE", plate_number: "23/40447", year: "2026", has_adv: "يوجد", adv_exp: "2026-11-20", remarks: "" }
+            ];
+            window.appState.auditLog = [];
+            logAction("تهيئة النظام", "بدء التشغيل بالبيانات الأساسية.");
+            saveToLocalStorage();
         }
 
         function switchTab(tabId) {
@@ -1053,7 +976,7 @@
             `).join('');
 
             const invBody = document.getElementById('inventoryTableBody');
-            invBody.innerHTML = items.length === 0 ? `<tr><td colspan="12" style="text-align:center;">لا توجد بيانات بهذا الشهر. اضغط "إضافة مركبة" أو استورد ملف.</td></tr>` :
+            invBody.innerHTML = items.length === 0 ? `<tr><td colspan="12" style="text-align:center;">لا توجد بيانات بهذا الشهر.</td></tr>` :
             items.map((item, idx) => `
                 <tr>
                     <td>${idx + 1}</td>
@@ -1124,7 +1047,7 @@
 
             const driversList = Object.values(mapDrivers);
             const body = document.getElementById('driversArchiveBody');
-            body.innerHTML = driversList.length === 0 ? `<tr><td colspan="8" style="text-align:center;">لا توجد بيانات سائقين مسجلة بعد</td></tr>` :
+            body.innerHTML = driversList.length === 0 ? `<tr><td colspan="8" style="text-align:center;">لا توجد بيانات مسجلة</td></tr>` :
             driversList.map((d, idx) => {
                 const isNameDup = nameCounts[d.driver_name] > 1;
                 const isMobileDup = d.mobile && mobileCounts[d.mobile] > 1;
@@ -1150,19 +1073,14 @@
             const newName = document.getElementById(`arc_name_${idx}`).value.trim();
             const newMobile = document.getElementById(`arc_mobile_${idx}`).value.trim();
 
-            if (!newName) {
-                alert("اسم السائق لا يمكن أن يكون فارغاً.");
-                return;
-            }
+            if (!newName) { alert("اسم السائق لا يمكن أن يكون فارغاً."); return; }
 
-            let updatedCount = 0;
             Object.keys(window.appState.inventoryByMonth).forEach(m => {
                 window.appState.inventoryByMonth[m].forEach(item => {
                     if (item.driver_name === oldName) {
                         item.emp_id = newEmpId;
                         item.driver_name = newName;
                         item.mobile = newMobile;
-                        updatedCount++;
                     }
                 });
             });
@@ -1170,15 +1088,13 @@
             logAction("تعديل أرشيف سائق", `تحديث السائق (${oldName} -> ${newName})`);
             saveToLocalStorage();
             updateUIFromState();
-            alert("تم تحديث بيانات السائق ومزامنتها سحابياً بنجاح!");
+            alert("تم تحديث وسحب البيانات بنجاح!");
         }
 
         function filterDriversArchive() {
             const query = document.getElementById('archiveSearchInput').value.toLowerCase();
             const rows = document.querySelectorAll('#driversArchiveBody tr');
-            rows.forEach(row => {
-                row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
-            });
+            rows.forEach(row => { row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none'; });
         }
 
         function renderAuditLog() {
@@ -1200,17 +1116,13 @@
         function filterDashTable() {
             const query = document.getElementById('dashSearchInput').value.toLowerCase();
             const rows = document.querySelectorAll('#dashTableBody tr');
-            rows.forEach(row => {
-                row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
-            });
+            rows.forEach(row => { row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none'; });
         }
 
         function filterInventoryTable() {
             const query = document.getElementById('inventorySearch').value.toLowerCase();
             const rows = document.querySelectorAll('#inventoryTableBody tr');
-            rows.forEach(row => {
-                row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
-            });
+            rows.forEach(row => { row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none'; });
         }
 
         function onStoreInputChanged() {
@@ -1253,9 +1165,7 @@
             document.getElementById('itemModal').classList.add('active');
         }
 
-        function closeItemModal() {
-            document.getElementById('itemModal').classList.remove('active');
-        }
+        function closeItemModal() { document.getElementById('itemModal').classList.remove('active'); }
 
         function saveItem(e) {
             e.preventDefault();
@@ -1289,7 +1199,7 @@
         }
 
         function deleteItem(index) {
-            if (confirm("هل أنت متأكد من حذف هذا السجل نهائياً ومزامنته سحابياً؟")) {
+            if (confirm("هل أنت متأكد من حذف هذا السجل نهائياً؟")) {
                 const removed = window.appState.inventoryByMonth[window.appState.activeMonth].splice(index, 1)[0];
                 logAction("حذف سجل", `حذف المركبة ${removed ? removed.plate_number : ''}`);
                 saveToLocalStorage();
@@ -1300,19 +1210,17 @@
         function openCloneMonthModal() {
             const months = Object.keys(window.appState.inventoryByMonth);
             const sel = document.getElementById('sourceMonthSelect');
-            sel.innerHTML = months.length === 0 ? `<option value="">لا توجد أشهر مسجلة</option>` :
+            sel.innerHTML = months.length === 0 ? `<option value="">لا توجد أشهر</option>` :
                 months.map(m => `<option value="${m}">${m} (${window.appState.inventoryByMonth[m].length} سجل)</option>`).join('');
             document.getElementById('cloneModal').classList.add('active');
         }
 
-        function closeCloneMonthModal() {
-            document.getElementById('cloneModal').classList.remove('active');
-        }
+        function closeCloneMonthModal() { document.getElementById('cloneModal').classList.remove('active'); }
 
         function executeCloneMonth() {
             const src = document.getElementById('sourceMonthSelect').value;
             const target = document.getElementById('targetMonthInput').value;
-            if (!src || !target) { alert("يرجى اختيار الشهر المصدر والمستهدف."); return; }
+            if (!src || !target) { alert("اختر الشهر المصدر والمستهدف."); return; }
             window.appState.inventoryByMonth[target] = JSON.parse(JSON.stringify(window.appState.inventoryByMonth[src]));
             window.appState.activeMonth = target;
             document.getElementById('activeMonthPicker').value = target;
@@ -1320,7 +1228,7 @@
             saveToLocalStorage();
             updateUIFromState();
             closeCloneMonthModal();
-            alert(`تم استنساخ بيانات شهر ${src} إلى ${target} بنجاح ومزامنته سحابياً!`);
+            alert("تم الاستنساخ ومزامنته سحابياً بنجاح!");
         }
 
         function parseExcelDate(val) {
@@ -1339,91 +1247,54 @@
         function processExcelImport() {
             const monthVal = document.getElementById('importExcelMonth').value;
             const fileInput = document.getElementById('excelFileUploader');
-            if (!monthVal || fileInput.files.length === 0) {
-                alert("يرجى اختيار الشهر وملف الاكسل أولاً.");
-                return;
-            }
+            if (!monthVal || fileInput.files.length === 0) { alert("اختر الشهر وملف الاكسل."); return; }
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                     const jsonRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-                    if (jsonRows.length < 2) {
-                        alert("ملف الاكسل فارغ أو لا يحتوي على صفوف بيانات.");
-                        return;
-                    }
+                    if (jsonRows.length < 2) { alert("ملف الاكسل فارغ."); return; }
 
                     const parsedItems = [];
                     for (let i = 1; i < jsonRows.length; i++) {
                         const r = jsonRows[i];
                         if (!r || r.length === 0) continue;
 
-                        let emp_id = "", driver_name = "", mobile = "", store = "", vehicle_type = "CAR", plate_number = "", year = "", has_adv = "لا يوجد", adv_exp = "", remarks = "";
-
-                        if (typeof r === 'object' && !Array.isArray(r)) {
-                            emp_id = String(r['الرقم الوظيفي'] || r['FILE'] || r['رقم وظيفي'] || '').trim();
-                            driver_name = String(r['اسم السائق'] || r['DRIVER NAME'] || '').trim();
-                            mobile = String(r['الهاتف'] || r['التليفون'] || r['MOBILE'] || '').trim();
-                            store = String(r['الفرع / المطعم'] || r['الفرع'] || r['Store'] || 'الاحمدي').trim();
-                            vehicle_type = String(r['النوع'] || r['VEHICLE Type'] || '').toUpperCase().includes('BIKE') ? 'BIKE' : 'CAR';
-                            plate_number = String(r['رقم المركبة'] || r['NUMBER'] || '').trim();
-                            year = String(r['الموديل'] || r['السنة'] || r['year'] || '').trim();
-                            has_adv = String(r['الإعلان'] || r['الاعلان'] || '').includes('لا') ? 'لا يوجد' : 'يوجد';
-                            adv_exp = parseExcelDate(r['انتهاء الإعلان'] || r['EXP DATE'] || '');
-                            remarks = String(r['ملاحظات'] || r['REMARKS'] || '').trim();
-                        } else {
-                            emp_id = String(r[1] || '').trim();
-                            driver_name = String(r[2] || '').trim();
-                            mobile = String(r[3] || '').trim();
-                            store = String(r[4] || 'الاحمدي').trim();
-                            vehicle_type = String(r[5] || '').toUpperCase().includes('BIKE') ? 'BIKE' : 'CAR';
-                            plate_number = String(r[6] || '').trim();
-                            year = String(r[7] || '').trim();
-                            has_adv = String(r[8] || '').includes('لا') ? 'لا يوجد' : 'يوجد';
-                            adv_exp = parseExcelDate(r[9] || '');
-                            remarks = String(r[10] || '').trim();
-                        }
+                        let emp_id = String(r[1] || '').trim();
+                        let driver_name = String(r[2] || '').trim();
+                        let mobile = String(r[3] || '').trim();
+                        let store = String(r[4] || 'الاحمدي').trim();
+                        let vehicle_type = String(r[5] || '').toUpperCase().includes('BIKE') ? 'BIKE' : 'CAR';
+                        let plate_number = String(r[6] || '').trim();
+                        let year = String(r[7] || '').trim();
+                        let has_adv = String(r[8] || '').includes('لا') ? 'لا يوجد' : 'يوجد';
+                        let adv_exp = parseExcelDate(r[9] || '');
+                        let remarks = String(r[10] || '').trim();
 
                         if (plate_number || driver_name) {
                             parsedItems.push({
                                 id: parsedItems.length + 1,
-                                emp_id: emp_id,
-                                driver_name: driver_name,
-                                mobile: mobile,
-                                store: store || 'الاحمدي',
-                                vehicle_type: vehicle_type,
-                                plate_number: plate_number,
-                                year: year,
-                                has_adv: has_adv,
-                                adv_exp: adv_exp,
-                                remarks: remarks
+                                emp_id, driver_name, mobile, store, vehicle_type, plate_number, year, has_adv, adv_exp, remarks
                             });
                         }
                     }
 
-                    if (parsedItems.length === 0) {
-                        alert("لم يتم العثور على بيانات صالحة للاستيراد في الملف.");
-                        return;
-                    }
+                    if (parsedItems.length === 0) { alert("لا توجد بيانات صالحة للاستيراد."); return; }
 
                     window.appState.inventoryByMonth[monthVal] = parsedItems;
-                    logAction("استيراد Excel", `استيراد ${parsedItems.length} سجل لشهر ${monthVal} من ملف Excel`);
-                    
-                    // حفظ ومزامنة فورية للسحابة
+                    logAction("استيراد Excel", `استيراد ${parsedItems.length} سجل لشهر ${monthVal}`);
                     saveToLocalStorage();
                     
                     window.appState.activeMonth = monthVal;
                     document.getElementById('activeMonthPicker').value = monthVal;
                     updateUIFromState();
-                    alert(`تم استيراد وتحميل ${parsedItems.length} سجل لشهر ${monthVal} ومزامنتها سحابياً بنجاح!`);
+                    alert(`تم استيراد ومزامنة ${parsedItems.length} سجل بنجاح!`);
                 } catch (err) {
-                    console.error(err);
-                    alert("حدث خطأ أثناء قراءة ملف الاكسل. تأكد من تطابق أعمدة الملف.");
+                    alert("خطأ في قراءة ملف الاكسل.");
                 }
             };
             reader.readAsArrayBuffer(fileInput.files[0]);
@@ -1433,8 +1304,7 @@
             const container = document.getElementById('storesTagsContainer');
             container.innerHTML = window.appState.stores.map((st, i) => `
                 <span style="background: #e9ecef; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;">
-                    ${st}
-                    <i class="fa-solid fa-xmark" style="cursor:pointer; color:#888;" onclick="removeStore(${i})"></i>
+                    ${st} <i class="fa-solid fa-xmark" style="cursor:pointer; color:#888;" onclick="removeStore(${i})"></i>
                 </span>
             `).join('');
         }
@@ -1444,7 +1314,7 @@
             if (val && !window.appState.stores.includes(val)) {
                 window.appState.stores.push(val);
                 document.getElementById('newStoreInput').value = '';
-                logAction("إضافة فرع", `إضافة فرع: ${val}`);
+                logAction("إضافة فرع", `فرع: ${val}`);
                 saveToLocalStorage();
                 renderStoresList();
             }
@@ -1452,8 +1322,7 @@
 
         function removeStore(idx) {
             if (confirm(`حذف فرع "${window.appState.stores[idx]}"؟`)) {
-                const removed = window.appState.stores.splice(idx, 1)[0];
-                logAction("حذف فرع", `حذف فرع: ${removed}`);
+                window.appState.stores.splice(idx, 1);
                 saveToLocalStorage();
                 renderStoresList();
             }
@@ -1479,149 +1348,29 @@
             let rowsHtml = '';
 
             if (type === 'driver_history') {
-                title.innerText = "تقرير حركة سائق محدد بين المطاعم عبر الأشهر";
-                headers = ["شهر الجرد", "الرقم الوظيفي", "اسم السائق", "الهاتف", "الفرع / المطعم", "رقم المركبة", "النوع", "الملاحظات"];
+                title.innerText = "تقرير حركة سائق محدد";
+                headers = ["شهر الجرد", "الرقم الوظيفي", "اسم السائق", "الهاتف", "الفرع", "رقم المركبة", "النوع", "ملاحظات"];
                 const q = document.getElementById('reportDriverQuery').value.toLowerCase();
-
-                let matchedRows = [];
+                let matched = [];
                 Object.keys(window.appState.inventoryByMonth).forEach(m => {
                     window.appState.inventoryByMonth[m].forEach(item => {
                         if ((item.driver_name.toLowerCase().includes(q) || item.emp_id.includes(q)) && q !== '') {
-                            matchedRows.push({ month: m, ...item });
+                            matched.push({ month: m, ...item });
                         }
                     });
                 });
-
-                rowsHtml = matchedRows.length === 0 ? `<tr><td colspan="8" style="text-align:center;">اكتب اسم أو رقم السائق لعرض سجله</td></tr>` :
-                matchedRows.map(r => `
-                    <tr>
-                        <td><strong>${r.month}</strong></td>
-                        <td>${r.emp_id || '-'}</td>
-                        <td>${r.driver_name}</td>
-                        <td>${r.mobile}</td>
-                        <td>${r.store}</td>
-                        <td>${r.plate_number}</td>
-                        <td>${r.vehicle_type}</td>
-                        <td>${r.remarks || '-'}</td>
-                    </tr>
-                `).join('');
-
-            } else if (type === 'vehicle_history') {
-                title.innerText = "تقرير حركة سيارة / سيكل محددة بين المطاعم";
-                headers = ["شهر الجرد", "رقم المركبة", "النوع", "اسم السائق", "الرقم الوظيفي", "الفرع الحالي", "حالة الإعلان", "الملاحظات"];
-                const q = document.getElementById('reportVehicleQuery').value.toLowerCase();
-
-                let matchedRows = [];
-                Object.keys(window.appState.inventoryByMonth).forEach(m => {
-                    window.appState.inventoryByMonth[m].forEach(item => {
-                        if (item.plate_number.toLowerCase().includes(q) && q !== '') {
-                            matchedRows.push({ month: m, ...item });
-                        }
-                    });
-                });
-
-                rowsHtml = matchedRows.length === 0 ? `<tr><td colspan="8" style="text-align:center;">اكتب رقم المركبة لعرض مسارها</td></tr>` :
-                matchedRows.map(r => `
-                    <tr>
-                        <td><strong>${r.month}</strong></td>
-                        <td><strong>${r.plate_number}</strong></td>
-                        <td>${r.vehicle_type}</td>
-                        <td>${r.driver_name}</td>
-                        <td>${r.emp_id || '-'}</td>
-                        <td>${r.store}</td>
-                        <td>${r.has_adv}</td>
-                        <td>${r.remarks || '-'}</td>
-                    </tr>
-                `).join('');
-
-            } else if (type === 'ads_expiring') {
-                title.innerText = "تقرير السيارات والسياكل التي عليها إعلانات ومواعيد انتهائها";
-                headers = ["#", "رقم المركبة", "النوع", "الفرع", "اسم السائق", "حالة الإعلان", "تاريخ الانتهاء", "الملاحظات"];
-                const items = getCurrentMonthItems().filter(i => i.has_adv === 'يوجد');
-                rowsHtml = items.length === 0 ? `<tr><td colspan="8" style="text-align:center;">لا توجد مركبات عليها إعلانات حالياً</td></tr>` :
-                items.map((i, idx) => `
-                    <tr>
-                        <td>${idx+1}</td>
-                        <td><strong>${i.plate_number}</strong></td>
-                        <td>${i.vehicle_type}</td>
-                        <td>${i.store}</td>
-                        <td>${i.driver_name}</td>
-                        <td>${i.has_adv}</td>
-                        <td><strong>${i.adv_exp || '-'}</strong></td>
-                        <td>${i.remarks || '-'}</td>
-                    </tr>
-                `).join('');
-
+                rowsHtml = matched.map(r => `<tr><td><strong>${r.month}</strong></td><td>${r.emp_id || '-'}</td><td>${r.driver_name}</td><td>${r.mobile}</td><td>${r.store}</td><td>${r.plate_number}</td><td>${r.vehicle_type}</td><td>${r.remarks || '-'}</td></tr>`).join('');
             } else if (type === 'cars_only' || type === 'bikes_only') {
                 const isCar = type === 'cars_only';
-                title.innerText = isCar ? "تقرير كشف السيارات فقط (CAR)" : "تقرير كشف السياكل فقط (BIKE)";
-                headers = ["#", "الرقم الوظيفي", "اسم السائق", "الهاتف", "الفرع", "رقم المركبة", "الموديل", "الإعلان", "الملاحظات"];
+                title.innerText = isCar ? "تقرير السيارات" : "تقرير السياكل";
+                headers = ["#", "الرقم الوظيفي", "اسم السائق", "الهاتف", "الفرع", "رقم المركبة", "الموديل", "الإعلان", "ملاحظات"];
                 const items = getCurrentMonthItems().filter(i => isCar ? i.vehicle_type === 'CAR' : i.vehicle_type === 'BIKE');
-                rowsHtml = items.map((i, idx) => `
-                    <tr>
-                        <td>${idx+1}</td>
-                        <td>${i.emp_id || '-'}</td>
-                        <td>${i.driver_name}</td>
-                        <td>${i.mobile}</td>
-                        <td>${i.store}</td>
-                        <td><strong>${i.plate_number}</strong></td>
-                        <td>${i.year}</td>
-                        <td>${i.has_adv}</td>
-                        <td>${i.remarks || '-'}</td>
-                    </tr>
-                `).join('');
-
-            } else if (type === 'store_distribution') {
-                title.innerText = "تقرير توزيع وإحصائيات المركبات حسب الفروع والمطاعم";
-                headers = ["اسم الفرع / المطعم", "عدد السيارات", "عدد السياكل", "إجمالي المركبات بالفرع"];
+                rowsHtml = items.map((i, idx) => `<tr><td>${idx+1}</td><td>${i.emp_id || '-'}</td><td>${i.driver_name}</td><td>${i.mobile}</td><td>${i.store}</td><td><strong>${i.plate_number}</strong></td><td>${i.year}</td><td>${i.has_adv}</td><td>${i.remarks || '-'}</td></tr>`).join('');
+            } else {
+                title.innerText = "تقرير عام";
+                headers = ["#", "رقم المركبة", "النوع", "الفرع", "اسم السائق", "ملاحظات"];
                 const items = getCurrentMonthItems();
-                const dist = {};
-                window.appState.stores.forEach(s => dist[s] = { cars: 0, bikes: 0 });
-                items.forEach(i => {
-                    if (!dist[i.store]) dist[i.store] = { cars: 0, bikes: 0 };
-                    if (i.vehicle_type === 'CAR') dist[i.store].cars++;
-                    else dist[i.store].bikes++;
-                });
-
-                rowsHtml = Object.keys(dist).filter(s => (dist[s].cars + dist[s].bikes) > 0).map(s => `
-                    <tr>
-                        <td><strong>${s}</strong></td>
-                        <td>${dist[s].cars}</td>
-                        <td>${dist[s].bikes}</td>
-                        <td><strong>${dist[s].cars + dist[s].bikes}</strong></td>
-                    </tr>
-                `).join('');
-
-            } else if (type === 'unassigned_vehicles') {
-                title.innerText = "تقرير المركبات الشاغرة (بدون سائق)";
-                headers = ["#", "رقم المركبة", "النوع", "الموديل", "الفرع المستلم", "الملاحظات"];
-                const items = getCurrentMonthItems().filter(i => !i.driver_name || i.driver_name.includes("بدون") || i.driver_name === "");
-                rowsHtml = items.length === 0 ? `<tr><td colspan="6" style="text-align:center;">جميع المركبات مسجلة بسائقين</td></tr>` :
-                items.map((i, idx) => `
-                    <tr>
-                        <td>${idx+1}</td>
-                        <td><strong>${i.plate_number}</strong></td>
-                        <td>${i.vehicle_type}</td>
-                        <td>${i.year}</td>
-                        <td>${i.store}</td>
-                        <td>${i.remarks || '-'}</td>
-                    </tr>
-                `).join('');
-
-            } else if (type === 'remarks_log') {
-                title.innerText = "تقرير الملاحظات والأعطال المدونة";
-                headers = ["#", "رقم المركبة", "اسم السائق", "الفرع", "الملاحظة المدونة"];
-                const items = getCurrentMonthItems().filter(i => i.remarks && i.remarks.trim() !== '');
-                rowsHtml = items.length === 0 ? `<tr><td colspan="5" style="text-align:center;">لا توجد ملاحظات مسجلة</td></tr>` :
-                items.map((i, idx) => `
-                    <tr>
-                        <td>${idx+1}</td>
-                        <td><strong>${i.plate_number}</strong></td>
-                        <td>${i.driver_name}</td>
-                        <td>${i.store}</td>
-                        <td>${i.remarks}</td>
-                    </tr>
-                `).join('');
+                rowsHtml = items.map((i, idx) => `<tr><td>${idx+1}</td><td><strong>${i.plate_number}</strong></td><td>${i.vehicle_type}</td><td>${i.store}</td><td>${i.driver_name}</td><td>${i.remarks || '-'}</td></tr>`).join('');
             }
 
             head.innerHTML = headers.map(h => `<th>${h}</th>`).join('');
@@ -1631,168 +1380,81 @@
         function exportToExcel() {
             const table = document.getElementById('reportOutputTable');
             const wb = XLSX.utils.table_to_book(table, { sheet: "Report" });
-            XLSX.writeFile(wb, `Naif_Vehicles_Report_${window.appState.activeMonth}.xlsx`);
-            logAction("تصدير Excel", `تصدير تقرير Excel لشهر ${window.appState.activeMonth}`);
+            XLSX.writeFile(wb, `Report_${window.appState.activeMonth}.xlsx`);
         }
 
         async function generateMultiPagePDF(titleText, headersArray, dataRows, filename) {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('l', 'pt', 'a4');
             const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
-
             const container = document.createElement('div');
-            container.style.position = 'fixed';
-            container.style.top = '0'; container.style.left = '-9999px';
-            container.style.width = '1120px';
-            container.style.background = '#ffffff';
-            container.style.direction = 'rtl';
-            container.style.padding = '20px';
+            container.style.position = 'fixed'; container.style.top = '0'; container.style.left = '-9999px';
+            container.style.width = '1120px'; container.style.background = '#ffffff'; container.style.direction = 'rtl'; container.style.padding = '20px';
             document.body.appendChild(container);
 
             const rowsPerPage = 15;
             const totalPages = Math.ceil(dataRows.length / rowsPerPage) || 1;
 
             for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
-                const start = pageIdx * rowsPerPage;
-                const pageChunk = dataRows.slice(start, start + rowsPerPage);
-
+                const pageChunk = dataRows.slice(pageIdx * rowsPerPage, (pageIdx + 1) * rowsPerPage);
                 container.innerHTML = `
                     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #d32f2f; padding-bottom: 12px; margin-bottom: 12px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <img src="https://i.postimg.cc/NM2zJWZD/NAIF-LOGO.jpg" alt="Logo" style="width: 50px; height: 50px; border-radius: 6px;">
-                            <div>
-                                <h2 style="font-size: 1.1rem; color: #d32f2f; margin:0;">شركة نايف للأغذية</h2>
-                                <p style="font-size: 0.8rem; color: #555; margin:0;">${titleText}</p>
-                            </div>
+                            <div><h2 style="font-size: 1.1rem; color: #d32f2f; margin:0;">شركة نايف للأغذية</h2><p style="font-size: 0.8rem; color: #555; margin:0;">${titleText}</p></div>
                         </div>
-                        <div style="text-align: left; font-size: 0.8rem; color: #555;">
-                            <p style="margin:0;"><strong>التاريخ:</strong> ${new Date().toISOString().split('T')[0]}</p>
-                            <p style="margin:0;"><strong>الصفحة:</strong> ${pageIdx + 1} / ${totalPages}</p>
-                        </div>
+                        <div style="text-align: left; font-size: 0.8rem; color: #555;"><p>الصفحة: ${pageIdx + 1} / ${totalPages}</p></div>
                     </div>
                     <table style="width:100%; border-collapse:collapse; font-size: 0.8rem; text-align:right;">
-                        <thead>
-                            <tr style="background:#f1f3f5; color:#333; font-weight:bold;">
-                                ${headersArray.map(h => `<th style="padding:8px; border-bottom:2px solid #ccc;">${h}</th>`).join('')}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${pageChunk.map((rowHtml, idx) => `
-                                <tr style="background-color: ${idx % 2 === 0 ? '#ffffff' : '#f0f7ff'}; border-bottom:1px solid #eee;">
-                                    ${rowHtml}
-                                </tr>
-                            `).join('')}
-                        </tbody>
+                        <thead><tr style="background:#f1f3f5; color:#333; font-weight:bold;">${headersArray.map(h => `<th style="padding:8px;">${h}</th>`).join('')}</tr></thead>
+                        <tbody>${pageChunk.map((r, idx) => `<tr style="background-color: ${idx % 2 === 0 ? '#ffffff' : '#f0f7ff'};">${r}</tr>`).join('')}</tbody>
                     </table>
                 `;
-
                 const canvas = await html2canvas(container, { scale: 2 });
                 const imgData = canvas.toDataURL('image/jpeg', 1.0);
                 const imgHeight = (canvas.height * pageWidth) / canvas.width;
-
                 if (pageIdx > 0) pdf.addPage();
                 pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, imgHeight);
             }
-
             pdf.save(filename);
             document.body.removeChild(container);
         }
 
         async function exportCurrentInventoryPDF() {
             const items = getCurrentMonthItems();
-            if (items.length === 0) { alert("لا توجد بيانات لجرد الشهر الحالي لتصديرها."); return; }
-
-            const headers = ["#", "الرقم الوظيفي", "اسم السائق", "الهاتف", "الفرع", "النوع", "رقم المركبة", "الموديل", "الإعلان", "انتهاء الإعلان", "الملاحظات"];
-            const rows = items.map((i, idx) => `
-                <td style="padding:8px;">${idx+1}</td>
-                <td style="padding:8px;">${i.emp_id || '-'}</td>
-                <td style="padding:8px;">${i.driver_name}</td>
-                <td style="padding:8px;">${i.mobile}</td>
-                <td style="padding:8px;">${i.store}</td>
-                <td style="padding:8px;">${i.vehicle_type}</td>
-                <td style="padding:8px;"><strong>${i.plate_number}</strong></td>
-                <td style="padding:8px;">${i.year}</td>
-                <td style="padding:8px;">${i.has_adv}</td>
-                <td style="padding:8px;">${i.adv_exp || '-'}</td>
-                <td style="padding:8px;">${i.remarks || '-'}</td>
-            `);
-
-            await generateMultiPagePDF(`تقرير كشف الجرد الشهري - ${window.appState.activeMonth}`, headers, rows, `Naif_Inventory_${window.appState.activeMonth}.pdf`);
-            logAction("تصدير PDF الجرد", `تصدير الجرد الشهري لـ PDF (${window.appState.activeMonth})`);
+            if (items.length === 0) { alert("لا توجد بيانات."); return; }
+            const headers = ["#", "الرقم الوظيفي", "اسم السائق", "الهاتف", "الفرع", "النوع", "رقم المركبة", "الموديل", "الإعلان", "انتهاء الإعلان", "ملاحظات"];
+            const rows = items.map((i, idx) => `<td style="padding:8px;">${idx+1}</td><td style="padding:8px;">${i.emp_id || '-'}</td><td style="padding:8px;">${i.driver_name}</td><td style="padding:8px;">${i.mobile}</td><td style="padding:8px;">${i.store}</td><td style="padding:8px;">${i.vehicle_type}</td><td style="padding:8px;"><strong>${i.plate_number}</strong></td><td style="padding:8px;">${i.year}</td><td style="padding:8px;">${i.has_adv}</td><td style="padding:8px;">${i.adv_exp || '-'}</td><td style="padding:8px;">${i.remarks || '-'}</td>`);
+            await generateMultiPagePDF(`كشف الجرد الشهري - ${window.appState.activeMonth}`, headers, rows, `Inventory_${window.appState.activeMonth}.pdf`);
         }
 
         async function exportToPDF() {
-            const type = document.getElementById('reportTypeSelect').value;
-            const titleText = document.getElementById('reportTitleHeader').innerText;
-            const headEls = Array.from(document.querySelectorAll('#reportTableHead th')).map(th => th.innerText);
             const rowEls = Array.from(document.querySelectorAll('#reportTableBody tr'));
-
-            if (rowEls.length === 0) { alert("لا توجد بيانات مطابقة لتصديرها."); return; }
-
+            if (rowEls.length === 0) { alert("لا توجد بيانات للتصدير."); return; }
+            const headEls = Array.from(document.querySelectorAll('#reportTableHead th')).map(th => th.innerText);
             const rows = rowEls.map(tr => tr.innerHTML);
-            await generateMultiPagePDF(titleText, headEls, rows, `Naif_Report_${window.appState.activeMonth}.pdf`);
-            logAction("تصدير PDF التقرير", `تصدير تقرير (${type}) لـ PDF`);
-        }
-
-        async function exportFilteredDashToPDF() {
-            const query = document.getElementById('dashSearchInput').value;
-            const items = getCurrentMonthItems().filter(item => {
-                if (!query) return true;
-                const fullStr = `${item.emp_id} ${item.driver_name} ${item.mobile} ${item.store} ${item.plate_number} ${item.year} ${item.remarks}`.toLowerCase();
-                return fullStr.includes(query.toLowerCase());
-            });
-
-            const targetItems = items.length > 0 ? items : getCurrentMonthItems();
-            if (targetItems.length === 0) { alert("لا توجد بيانات لتصديرها."); return; }
-
-            const headers = ["#", "الرقم الوظيفي", "اسم السائق", "الهاتف", "الفرع", "النوع", "رقم المركبة", "الموديل", "الإعلان", "انتهاء الإعلان", "الملاحظات"];
-            const rows = targetItems.map((i, idx) => `
-                <td style="padding:8px;">${idx+1}</td>
-                <td style="padding:8px;">${i.emp_id || '-'}</td>
-                <td style="padding:8px;">${i.driver_name}</td>
-                <td style="padding:8px;">${i.mobile}</td>
-                <td style="padding:8px;">${i.store}</td>
-                <td style="padding:8px;">${i.vehicle_type}</td>
-                <td style="padding:8px;"><strong>${i.plate_number}</strong></td>
-                <td style="padding:8px;">${i.year}</td>
-                <td style="padding:8px;">${i.has_adv}</td>
-                <td style="padding:8px;">${i.adv_exp || '-'}</td>
-                <td style="padding:8px;">${i.remarks || '-'}</td>
-            `);
-
-            await generateMultiPagePDF(`تقرير نتائج البحث الفوري واللوحة - ${window.appState.activeMonth}`, headers, rows, `Naif_Dashboard_Filtered_${window.appState.activeMonth}.pdf`);
-            logAction("تصدير PDF مصفى", `تصدير لوحة التحكم المصفاة لـ PDF`);
+            await generateMultiPagePDF("تقرير الإدارة التنفيذية", headEls, rows, `Report_${window.appState.activeMonth}.pdf`);
         }
 
         function exportBackup() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(window.appState, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `Naif_Full_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            downloadAnchor.setAttribute("download", `Backup_${new Date().toISOString().split('T')[0]}.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
-            logAction("نسخ احتياطي", "تصدير النسخة الاحتياطية للنظام.");
         }
 
         function importBackup(e) {
             const fileReader = new FileReader();
             fileReader.onload = function(event) {
                 try {
-                    const importedObj = JSON.parse(event.target.result);
-                    if (importedObj.inventoryByMonth && importedObj.stores) {
-                        window.appState = importedObj;
-                        logAction("استعادة نسخة", "استعادة بيانات النظام بنجاح.");
-                        saveToLocalStorage();
-                        updateUIFromState();
-                        alert("تمت استعادة النسخة الاحتياطية بنجاح ومزامنتها برمجياً وسحابياً!");
-                    } else {
-                        alert("تنسيق الملف غير صحيح!");
-                    }
-                } catch (err) {
-                    alert("عذراً، فشلت قراءة ملف النسخة الاحتياطية.");
-                }
+                    window.appState = JSON.parse(event.target.result);
+                    saveToLocalStorage();
+                    updateUIFromState();
+                    alert("تمت استعادة النسخة الاحتياطية ومزامنتها بنجاح!");
+                } catch (err) { alert("ملف غير صالح."); }
             };
             fileReader.readAsText(e.target.files[0]);
         }
